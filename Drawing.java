@@ -1,19 +1,23 @@
-import java.awt.Canvas;
-import java.awt.Graphics;
-import java.awt.Color;
+import java.awt.*;
 import javax.swing.JFrame;
 public class Drawing extends Canvas{
     public static void main (String[] args) {
-        JFrame frame = new JFrame("League of Invaders 2");
+        JFrame frame = new JFrame("Teemo Run");
         Canvas canvas = new Drawing();
-        canvas.setSize(500, 500);
+        Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+        int width = (int)size.getWidth();
+        int height = (int)size.getHeight();
+        canvas.setSize(width, height);
         frame.add(canvas);
         frame.pack();
         frame.setVisible(true);
+
+        
     }
 
     public void paint (Graphics g) {
-        g.setColor(Color.red);
-        g.fillOval(150, 150, 200, 200);
+        Background b1 = new Background(200);
+        g.drawImage(b1.img, 0, 0, null);
+        
     }
 }

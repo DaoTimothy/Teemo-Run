@@ -14,11 +14,8 @@ public class Background extends Canvas{
         try{
             this.img = ImageIO.read(new File("Background.png"));
         }catch (IOException e) {
-            System.out.println ("Failed");
         }
     }
 
-    public void paint (Graphics g) {
     
-    }
 }

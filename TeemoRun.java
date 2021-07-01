@@ -8,8 +8,8 @@ public class TeemoRun extends PApplet {
     boolean exitMenu = false;
     public void setup () {
         frameRate(100);
-        jungleBackground = loadImage("JungleBackground.png");
-        menuBackground = loadImage("MenuBackground.png");
+        jungleBackground = loadImage("Photos/JungleBackground.png");
+        menuBackground = loadImage("Photos/MenuBackground.png");
         jungle1 = new Background (this, jungleBackground, 0, width, height);
         jungle2 = new Background (this, jungleBackground, width, width, height);
         menu = new Background (this, menuBackground, 0, width, height);

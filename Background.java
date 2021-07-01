@@ -1,21 +1,30 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
-import java.io.*;
-import javax.imageio.*;
-import javax.swing.*;
-public class Background extends Canvas{
+import processing.core.*;
+class Background extends PApplet{
     int x;
-    BufferedImage img = null;
-    
-
-    public Background (int x) {
+    PImage img;
+    PApplet sketch;
+    int screenWidth;
+    int screenHeight;
+    public Background (PApplet sketch, PImage tempImg, int x, int width, int height) {
+        this.sketch = sketch;
+        img = tempImg;
         this.x = x;
-        try{
-            this.img = ImageIO.read(new File("Background.png"));
-        }catch (IOException e) {
-        }
+        screenWidth = width;
+        screenHeight = height;
     }
 
-    
+    public void scroll () {
+        x -= 10;   
+    }
+
+    public void display() {
+        sketch.stroke(0);
+        sketch.image(img, x, 0, screenWidth, screenHeight);
+    }
+
+    public void restart () {
+        if (this.x < -screenWidth) {
+            this.x = screenWidth;
+        }
+    }
 }

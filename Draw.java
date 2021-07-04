@@ -13,14 +13,16 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     int counter = 0;
 
     private BufferedImage[] teemoSprite = new BufferedImage[6];
-    private BufferedImage background1;
-    private BufferedImage background2;
+    private BufferedImage[] background = new BufferedImage[2];
 
-    int teemox = (int)size.getWidth() / 3, teemoy = (int)size.getHeight() - 300;
+    int teemox = (int)size.getWidth() / 3, teemoy = (int)size.getHeight() - 250;
     int bg1x = 0, bg2x = (int)size.getWidth();
     int bgscrollspeed = 2;
+    int bg1type = 0, bg2type = 1;
 
     boolean upPressed = false;
+    float jumpStrength = 10F;
+    float weight = 0.25F;
 
     public Draw() {
 
@@ -33,8 +35,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             teemoSprite[3] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo4.png"));
             teemoSprite[4] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo5.png"));
             teemoSprite[5] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo6.png"));
-            background1 = ImageIO.read(getClass().getResourceAsStream("/Images/background.png"));
-            background2 = ImageIO.read(getClass().getResourceAsStream("/Images/background.png"));
+            background[0] = ImageIO.read(getClass().getResourceAsStream("/Images/background.png"));
+            background[1] = ImageIO.read(getClass().getResourceAsStream("/Images/background2.png"));
 
         } catch (IOException e) {
 
@@ -48,8 +50,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     public void paint(Graphics g) {
 
         //Background
-        g.drawImage(background1, bg1x, 0, (int)size.getWidth(), (int)size.getHeight(), null);
-        g.drawImage(background2, bg2x, 0, (int)size.getWidth(), (int)size.getHeight(), null);
+        g.drawImage(background[bg1type], bg1x, 0, (int)size.getWidth(), (int)size.getHeight(), null);
+        g.drawImage(background[bg2type], bg2x, 0, (int)size.getWidth(), (int)size.getHeight(), null);
         
         //Teemo
         g.drawImage(teemoSprite[(int)counter/18], teemox, teemoy, 100, 100, null);
@@ -68,15 +70,26 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         bg2x += -bgscrollspeed;
         if (bg1x <= -size.getWidth()) {
             bg1x = (int)size.getWidth();
+            bg1type = (int)Math.floor(Math.random()*(2));
         }
         if (bg2x <= -size.getWidth()) {
             bg2x = (int)size.getWidth();
+            bg2type = (int)Math.floor(Math.random()*(2));
         }
 
         //Teemo jumps
         if (upPressed == true) {
 
-            teemoy += -1;
+            teemoy -= jumpStrength;
+            jumpStrength -= weight;
+
+            if (teemoy - jumpStrength >= (int)size.getHeight() - 250) {
+
+                upPressed = false;
+                jumpStrength = 10;
+                teemoy = (int)size.getHeight() - 250;
+
+            }
 
         }
 

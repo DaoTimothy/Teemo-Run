@@ -5,7 +5,8 @@ import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.imageio.ImageIO;
 
-public class Draw extends JPanel implements ActionListener {
+public class Draw extends JPanel implements ActionListener, KeyListener {
+    //Declaring variables
     Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
 
     Timer timer = new Timer(0, this);
@@ -19,8 +20,11 @@ public class Draw extends JPanel implements ActionListener {
     int bg1x = 0, bg2x = (int)size.getWidth();
     int bgscrollspeed = 2;
 
+    boolean upPressed = false;
+
     public Draw() {
 
+        //Getting images
         try {
 
             teemoSprite[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo1.png"));
@@ -40,23 +44,26 @@ public class Draw extends JPanel implements ActionListener {
 
     }
 
+    //Draw stuff of screen
     public void paint(Graphics g) {
 
+        //Background
         g.drawImage(background1, bg1x, 0, (int)size.getWidth(), (int)size.getHeight(), null);
         g.drawImage(background2, bg2x, 0, (int)size.getWidth(), (int)size.getHeight(), null);
-
         
+        //Teemo
         g.drawImage(teemoSprite[(int)counter/18], teemox, teemoy, 100, 100, null);
-
         timer.start();
         counter++;
         if (counter >= 108) {
             counter = 0;
         }
+
     }
 
     public void actionPerformed(ActionEvent e) {
 
+        //Scroll background
         bg1x += -bgscrollspeed;
         bg2x += -bgscrollspeed;
         if (bg1x <= -size.getWidth()) {
@@ -66,8 +73,31 @@ public class Draw extends JPanel implements ActionListener {
             bg2x = (int)size.getWidth();
         }
 
+        //Teemo jumps
+        if (upPressed == true) {
+
+            teemoy += -1;
+
+        }
+
         repaint();
 
+    }
+
+    //Accept user input
+    public void keyPressed(KeyEvent e) {
+
+        //Teemo jump
+        if (e.getKeyCode() == KeyEvent.VK_SPACE && upPressed == false) {
+            upPressed = true;
+        }
+
+    }
+
+    public void keyTyped(KeyEvent e) {
+    }
+
+    public void keyReleased(KeyEvent e) {
     }
     
 }

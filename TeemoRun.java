@@ -8,6 +8,7 @@ public class TeemoRun {
 
         Draw draw = new Draw();
 
+        //Screen setup
         JFrame obj = new JFrame();
         obj.setBounds(0, 0, (int)size.getWidth(), (int)size.getHeight());
         obj.setBackground(Color.BLUE);
@@ -17,6 +18,7 @@ public class TeemoRun {
         obj.setVisible(true);
         obj.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         obj.add(draw);
+        obj.addKeyListener(draw); 
 
     }
     

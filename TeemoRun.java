@@ -1,47 +1,23 @@
-import processing.core.*;
-public class TeemoRun extends PApplet {
-    PImage jungleBackground;
-    PImage menuBackground;
-    Background jungle1;
-    Background jungle2;
-    Background menu;
-    boolean exitMenu = false;
-    public void setup () {
-        frameRate(100);
-        jungleBackground = loadImage("Photos/JungleBackground.png");
-        menuBackground = loadImage("Photos/MenuBackground.png");
-        jungle1 = new Background (this, jungleBackground, 0, width, height);
-        jungle2 = new Background (this, jungleBackground, width, width, height);
-        menu = new Background (this, menuBackground, 0, width, height);
-    }   
-    public void settings () {
-        fullScreen();
+import java.awt.*;  
+import javax.swing.*;
+
+public class TeemoRun {
+
+    public static void main(String args[]) {
+        Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+
+        Draw draw = new Draw();
+
+        JFrame obj = new JFrame();
+        obj.setBounds(0, 0, (int)size.getWidth(), (int)size.getHeight());
+        obj.setBackground(Color.BLUE);
+        obj.setExtendedState(JFrame.MAXIMIZED_BOTH);   //Fullscreen
+        obj.setUndecorated(true);
+        obj.setResizable(false);
+        obj.setVisible(true);
+        obj.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        obj.add(draw);
+
     }
     
-    public void draw() {
-        if (!exitMenu) {
-            menu.display();
-        } else {
-            gameplayLoop();
-        }
-    }
-
-    public static void main(String[] args) {
-        String[] appletArgs = new String[] { "TeemoRun" };
-        PApplet.main(appletArgs);
-    }
-
-    public void gameplayLoop () {
-        jungle1.scroll();
-        jungle1.display();
-        jungle1.restart();
-        jungle2.scroll();
-        jungle2.display();
-        jungle2.restart();
-    }
-
-    public void mousePressed () {
-        exitMenu = true;
-    }
-
 }

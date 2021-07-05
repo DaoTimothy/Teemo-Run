@@ -13,6 +13,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     int counter = 0;
 
     private BufferedImage[] teemoSprite = new BufferedImage[6];
+    private BufferedImage teemoHat;
     private BufferedImage[] background = new BufferedImage[2];
     private BufferedImage gromp;
     private BufferedImage wolf;
@@ -27,6 +28,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     boolean upPressed = false;
     float jumpStrength = 10F;
     float weight = 0.25F;
+    boolean isCrouch = false;
 
     public Draw() {
 
@@ -39,6 +41,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             teemoSprite[3] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo4.png"));
             teemoSprite[4] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo5.png"));
             teemoSprite[5] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo6.png"));
+            teemoHat = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/TeemoHat.png"));
             background[0] = ImageIO.read(getClass().getResourceAsStream("/Images/background.png"));
             background[1] = ImageIO.read(getClass().getResourceAsStream("/Images/background2.png"));
             gromp = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Gromp.png"));
@@ -64,15 +67,24 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         
         //Wolf
         g.drawImage(wolf, wolfx, (int)size.getHeight() - 275, 150, 150, null);
-        timer.start();
-        
-        //Teemo
-        g.drawImage(teemoSprite[(int)counter/18], teemox, teemoy, 100, 100, null);
-        counter++;
 
-        if (counter >= 108) {
-            counter = 0;
-        }
+        //Teemo
+        if (isCrouch == true) {
+
+            g.drawImage(teemoHat, teemox, teemoy + 50, 100, 50, null);
+
+        } else {
+
+            g.drawImage(teemoSprite[(int)counter/18], teemox, teemoy, 100, 100, null);
+            counter++;
+            if (counter >= 108) {
+                counter = 0;
+            }
+
+        } 
+        
+        timer.start();
+
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -81,7 +93,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         bg1x += -bgscrollspeed;
         bg2x += -bgscrollspeed;
         
-
         if (bg1x <= -size.getWidth()) {
             bg1x = (int)size.getWidth();
             bg1type = (int)Math.floor(Math.random()*(2));
@@ -113,15 +124,21 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         if (wolfx <= -200) {
             wolfx = (int)size.getWidth() + (int) (Math.random()*3000);
         }
+
         repaint();
+
     }
 
     //Accept user input
     public void keyPressed(KeyEvent e) {
 
         //Teemo jump
-        if (e.getKeyCode() == KeyEvent.VK_SPACE && upPressed == false) {
+        if (e.getKeyCode() == KeyEvent.VK_SPACE && upPressed == false && e.getKeyCode() != KeyEvent.VK_DOWN && isCrouch == false) {
             upPressed = true;
+        } 
+        //Teemo Crouch
+        if (e.getKeyCode() == KeyEvent.VK_DOWN && upPressed == false && e.getKeyCode() != KeyEvent.VK_SPACE && isCrouch == false) {
+            isCrouch = true;
         }
 
     }
@@ -130,6 +147,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     }
 
     public void keyReleased(KeyEvent e) {
+        //Teemo uncrouch
+        if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+            isCrouch = false;
+        }
     }
-    
 }

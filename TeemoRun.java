@@ -11,7 +11,6 @@ public class TeemoRun {
         //Screen setup
         JFrame obj = new JFrame();
         obj.setBounds(0, 0, (int)size.getWidth(), (int)size.getHeight());
-        obj.setBackground(Color.BLUE);
         obj.setExtendedState(JFrame.MAXIMIZED_BOTH);   //Fullscreen
         obj.setUndecorated(true);
         obj.setResizable(false);

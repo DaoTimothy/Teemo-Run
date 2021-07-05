@@ -15,12 +15,14 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     private BufferedImage[] teemoSprite = new BufferedImage[6];
     private BufferedImage[] background = new BufferedImage[2];
     private BufferedImage gromp;
+    private BufferedImage wolf;
 
     int teemox = (int)size.getWidth() / 3, teemoy = (int)size.getHeight() - 250;
     int bg1x = 0, bg2x = (int)size.getWidth();
     int bgscrollspeed = 5;
     int bg1type = 0, bg2type = 1;
     int grompx = (int)size.getWidth();
+    int wolfx = (int)size.getWidth();
 
     boolean upPressed = false;
     float jumpStrength = 10F;
@@ -39,7 +41,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             teemoSprite[5] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo6.png"));
             background[0] = ImageIO.read(getClass().getResourceAsStream("/Images/background.png"));
             background[1] = ImageIO.read(getClass().getResourceAsStream("/Images/background2.png"));
-            gromp = ImageIO.read(getClass().getResourceAsStream("/Images/Gromp/Gromp.png"));
+            gromp = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Gromp.png"));
+            wolf = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Murk-Wolf.png"));
 
         } catch (IOException e) {
 
@@ -56,19 +59,20 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         g.drawImage(background[bg1type], bg1x, 0, (int)size.getWidth(), (int)size.getHeight(), null);
         g.drawImage(background[bg2type], bg2x, 0, (int)size.getWidth(), (int)size.getHeight(), null);
         
+        //Gromp
+        g.drawImage(gromp, grompx, (int)size.getHeight() - 325, 200, 200, null);
+        
+        //Wolf
+        g.drawImage(wolf, wolfx, (int)size.getHeight() - 275, 150, 150, null);
+        timer.start();
+        
         //Teemo
         g.drawImage(teemoSprite[(int)counter/18], teemox, teemoy, 100, 100, null);
-
-        //Gromp
-        g.drawImage(gromp, grompx, (int)size.getHeight() - 350, 200, 200, null);
-        
-        
-        timer.start();
         counter++;
+
         if (counter >= 108) {
             counter = 0;
         }
-
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -102,6 +106,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         grompx += -bgscrollspeed;
         if (grompx <= -200) {
             grompx = (int)size.getWidth() + (int) (Math.random()*1000);
+        }
+
+        //Wolf
+        wolfx += -bgscrollspeed*2;
+        if (wolfx <= -200) {
+            wolfx = (int)size.getWidth() + (int) (Math.random()*3000);
         }
         repaint();
     }

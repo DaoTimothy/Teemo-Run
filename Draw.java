@@ -14,11 +14,13 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
     private BufferedImage[] teemoSprite = new BufferedImage[6];
     private BufferedImage[] background = new BufferedImage[2];
+    private BufferedImage gromp;
 
     int teemox = (int)size.getWidth() / 3, teemoy = (int)size.getHeight() - 250;
     int bg1x = 0, bg2x = (int)size.getWidth();
-    int bgscrollspeed = 2;
+    int bgscrollspeed = 5;
     int bg1type = 0, bg2type = 1;
+    int grompx = (int)size.getWidth();
 
     boolean upPressed = false;
     float jumpStrength = 10F;
@@ -37,6 +39,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             teemoSprite[5] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo6.png"));
             background[0] = ImageIO.read(getClass().getResourceAsStream("/Images/background.png"));
             background[1] = ImageIO.read(getClass().getResourceAsStream("/Images/background2.png"));
+            gromp = ImageIO.read(getClass().getResourceAsStream("/Images/Gromp/Gromp.png"));
 
         } catch (IOException e) {
 
@@ -55,6 +58,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         
         //Teemo
         g.drawImage(teemoSprite[(int)counter/18], teemox, teemoy, 100, 100, null);
+
+        //Gromp
+        g.drawImage(gromp, grompx, (int)size.getHeight() - 350, 200, 200, null);
+        
+        
         timer.start();
         counter++;
         if (counter >= 108) {
@@ -68,6 +76,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         //Scroll background
         bg1x += -bgscrollspeed;
         bg2x += -bgscrollspeed;
+        
+
         if (bg1x <= -size.getWidth()) {
             bg1x = (int)size.getWidth();
             bg1type = (int)Math.floor(Math.random()*(2));
@@ -79,22 +89,21 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
         //Teemo jumps
         if (upPressed == true) {
-
             teemoy -= jumpStrength;
             jumpStrength -= weight;
-
             if (teemoy - jumpStrength >= (int)size.getHeight() - 250) {
-
                 upPressed = false;
                 jumpStrength = 10;
                 teemoy = (int)size.getHeight() - 250;
-
             }
-
         }
 
+        //Gromp
+        grompx += -bgscrollspeed;
+        if (grompx <= -200) {
+            grompx = (int)size.getWidth() + (int) (Math.random()*1000);
+        }
         repaint();
-
     }
 
     //Accept user input

@@ -13,7 +13,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
     Timer timer = new Timer(0, this);
     int counter = 0;
-
+    
+    
+    private BufferedImage crosshair;
     private BufferedImage[] teemoSprite = new BufferedImage[6];
     private BufferedImage teemoHat;
     private BufferedImage[] background = new BufferedImage[3];
@@ -40,6 +42,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         //Getting images
         try {
 
+            crosshair = ImageIO.read(getClass().getResourceAsStream("/Images/Crosshair.png"));
             teemoSprite[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo1.png"));
             teemoSprite[1] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo2.png"));
             teemoSprite[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo3.png"));
@@ -63,12 +66,16 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
     //Draw stuff of screen
     public void paint(Graphics g) {
+
+        
+
+
         if (!gameOver) {
             gameOver = false;
             //Background
             g.drawImage(background[bg1type], bg1x, 0, width, height, null);
             g.drawImage(background[bg2type], bg2x, 0, width, height, null);
-            
+
             //Gromp
             g.drawImage(gromp, grompx, grompy, 200, 200, null);
             
@@ -110,6 +117,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
                 }
             }
             
+            //Crosshair
+            PointerInfo pi = MouseInfo.getPointerInfo();
+            Point p = pi.getLocation();
+            g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
+
         } else {
             //g.drawImage(background[2], 0, 0, width, height, null);
         }

@@ -1,5 +1,6 @@
 import java.awt.*;  
 import javax.swing.*;
+import java.awt.image.BufferedImage;
 
 public class TeemoRun {
 
@@ -10,6 +11,10 @@ public class TeemoRun {
 
         //Screen setup
         JFrame obj = new JFrame();
+
+        BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+        Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
+        obj.getContentPane().setCursor(blankCursor);
         obj.setBounds(0, 0, (int)size.getWidth(), (int)size.getHeight());
         obj.setExtendedState(JFrame.MAXIMIZED_BOTH);   //Fullscreen
         obj.setUndecorated(true);

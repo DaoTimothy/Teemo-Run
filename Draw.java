@@ -22,11 +22,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
     int teemox = width / 3, teemoy = height - 250;
     int bg1x = 0, bg2x = width;
-    int bgscrollspeed = 5;
+    int bgscrollspeed = width / 300;
     int bg1type = 0, bg2type = 1;
     int grompx = width;
     int grompy = height - 325;
     int wolfx = width;
+    int wolfy = height - 275;
 
     boolean gameOver = false;
     boolean upPressed = false;
@@ -72,7 +73,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             g.drawImage(gromp, grompx, grompy, 200, 200, null);
             
             //Wolf
-            g.drawImage(wolf, wolfx, height - 275, 150, 150, null);
+            g.drawImage(wolf, wolfx, wolfy, 150, 150, null);
 
             //Teemo
             if (isCrouch == true) {
@@ -89,13 +90,22 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
             } 
             
-            //Collision
+            // Gromp Collision
 
             //g.drawRect(grompx + 25, grompy + 25, 150 , 175);
             //Rectangle representing gromp's hitbox
             
             if (teemox < grompx + 25 && teemox + 100 > grompx + 25 || teemox < grompx + 175 && teemox + 100 > grompx + 175 || teemox > grompx + 25 && teemox + 100 < grompx + 175) {
                 if (teemoy + 50 > grompy + 25) {
+                    gameOver = true;
+                }
+            }
+            
+            //Wolf Collision
+            //g.drawRect(wolfx + 25, wolfy + 25, 100 , 100);
+
+            if (teemox < wolfx + 25 && teemox + 100 > wolfx + 25 || teemox < wolfx + 125 && teemox + 100 > wolfx + 125 || teemox > wolfx + 25 && teemox + 100 < wolfx + 175) {
+                if (teemoy + 50 > wolfy + 25) {
                     gameOver = true;
                 }
             }

@@ -11,6 +11,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
     Timer timer = new Timer(0, this);
     int counter = 0;
+    int score = 000000;
 
     private BufferedImage[] teemoSprite = new BufferedImage[6];
     private BufferedImage teemoHat;
@@ -71,17 +72,23 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         //Teemo
         if (isCrouch == true) {
 
-            g.drawImage(teemoHat, teemox, teemoy + 50, 100, 50, null);
+            g.drawImage(teemoHat, teemox, teemoy + 50, 150, 75, null);
 
         } else {
 
-            g.drawImage(teemoSprite[(int)counter/18], teemox, teemoy, 100, 100, null);
+            g.drawImage(teemoSprite[(int)counter/18], teemox, teemoy - 50, 150, 150, null);
             counter++;
             if (counter >= 108) {
                 counter = 0;
             }
 
         } 
+
+        Font font = new Font("Verdana", Font.BOLD, 120);
+        g.setFont(font);
+        g.drawString(String.valueOf(score), 0, 100);
+
+        score++;
         
         timer.start();
 
@@ -133,11 +140,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     public void keyPressed(KeyEvent e) {
 
         //Teemo jump
-        if (e.getKeyCode() == KeyEvent.VK_SPACE && upPressed == false && e.getKeyCode() != KeyEvent.VK_DOWN && isCrouch == false) {
+        if (e.getKeyCode() == KeyEvent.VK_UP && upPressed == false && e.getKeyCode() != KeyEvent.VK_DOWN && isCrouch == false) {
             upPressed = true;
         } 
         //Teemo Crouch
-        if (e.getKeyCode() == KeyEvent.VK_DOWN && upPressed == false && e.getKeyCode() != KeyEvent.VK_SPACE && isCrouch == false) {
+        if (e.getKeyCode() == KeyEvent.VK_DOWN && upPressed == false && e.getKeyCode() != KeyEvent.VK_UP && isCrouch == false) {
             isCrouch = true;
         }
 

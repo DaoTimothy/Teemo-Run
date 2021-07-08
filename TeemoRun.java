@@ -22,6 +22,7 @@ public class TeemoRun {
         obj.setVisible(true);
         obj.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         obj.add(draw);
+
         obj.addKeyListener(draw); 
 
     }

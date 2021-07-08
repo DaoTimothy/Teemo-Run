@@ -14,7 +14,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     Timer timer = new Timer(0, this);
     int counter = 0;
     
-    
     private BufferedImage crosshair;
     private BufferedImage[] teemoSprite = new BufferedImage[6];
     private BufferedImage teemoHat;
@@ -66,9 +65,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
     //Draw stuff of screen
     public void paint(Graphics g) {
-
-        
-
 
         if (!gameOver) {
             gameOver = false;

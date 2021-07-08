@@ -20,6 +20,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     private BufferedImage[] background = new BufferedImage[3];
     private BufferedImage gromp;
     private BufferedImage wolf;
+    private BufferedImage[] raptor = new BufferedImage[3];
 
     int teemox = width / 3, teemoy = height - 250;
     int bg1x = 0, bg2x = width;
@@ -29,6 +30,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     int grompy = height - 325;
     int wolfx = width;
     int wolfy = height - 275;
+    int raptor1x = width + (int) (Math.random()*3000);
+    int raptor2x = width + (int) (Math.random()*6000);
+    int raptor3x = width + (int) (Math.random()*9000);
+    int raptor1y = height - 500, raptor2y = height - 500, raptor3y = height - 500;
 
     boolean gameOver = false;
     boolean upPressed = false;
@@ -54,6 +59,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             background[2] = ImageIO.read(getClass().getResourceAsStream("/Images/MenuBackground.png"));
             gromp = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Gromp.png"));
             wolf = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Murk-Wolf.png"));
+            raptor[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor1.png"));
+            raptor[1] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor2.png"));
+            raptor[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor3.png"));
 
         } catch (IOException e) {
 
@@ -77,6 +85,14 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             
             //Wolf
             g.drawImage(wolf, wolfx, wolfy, 150, 150, null);
+            
+            //Raptors
+            g.drawImage(raptor[0], raptor1x, raptor1y, 100, 100, null);
+
+            g.drawImage(raptor[1], raptor2x, raptor2y, 100, 100, null);
+
+            
+            
 
             //Teemo
             if (isCrouch == true) {
@@ -86,7 +102,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             } else {
 
                 g.drawImage(teemoSprite[(int)counter/10], teemox, teemoy, 100, 100, null);
-                counter++;
+                if (!upPressed) {
+                    counter++;
+                }
                 if (counter >= 60) {
                     counter = 0;
                 }
@@ -95,7 +113,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             
             // Gromp Collision
 
-            g.drawRect(grompx + 25, grompy + 25, 150 , 175);
+            //g.drawRect(grompx + 25, grompy + 25, 150 , 175);
             //Rectangle representing gromp's hitbox
             
             if (teemox < grompx + 25 && teemox + 100 > grompx + 25 || teemox < grompx + 175 && teemox + 100 > grompx + 175 || teemox > grompx + 25 && teemox + 100 < grompx + 175) {
@@ -163,7 +181,23 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             wolfx = width + (int) (Math.random()*3000);
         }
 
+        //Raptor 1
+        raptor1x += -bgscrollspeed*1.5;
+        if (raptor1x <= -150) {
+            raptor1x = width + (int) (Math.random() * 5000);
+        }
         
+        //Raptor 2
+        raptor2x += -bgscrollspeed*1.5;
+        if (raptor2x <= -150) {
+            raptor2x = width + (int) (Math.random() * 5000);
+        }
+        
+        //Raptor 3
+        raptor3x += -bgscrollspeed*1.5;
+        if (raptor3x <= -150) {
+            raptor3x = width + (int) (Math.random() * 5000);
+        }
         repaint();
 
     }

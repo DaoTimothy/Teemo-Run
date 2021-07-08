@@ -8,8 +8,8 @@ import javax.imageio.ImageIO;
 public class Draw extends JPanel implements ActionListener, KeyListener {
     //Declaring variables
     Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-    int width = (int)size.getWidth();
-    int height = (int)size.getHeight();
+    int screenWidth = (int)size.getWidth();
+    int screenHeight = (int)size.getHeight();
 
     Timer timer = new Timer(0, this);
     int counter = 0;
@@ -22,20 +22,29 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     private BufferedImage wolf;
     private BufferedImage[] raptor = new BufferedImage[3];
 
-    int teemox = width / 3, teemoy = height - 250;
-    int bg1x = 0, bg2x = width;
-    int bgscrollspeed = width / 300;
+    int teemox = screenWidth / 3, teemoy = screenHeight - 250;
+
+    int grompx = screenWidth;
+    int grompy = screenHeight - 325;
+    int grompHitboxCorrection = 175;
+
+    int wolfx = screenWidth + 500;
+    int wolfy = screenHeight - 275;
+    int wolfHitboxCorrection = 125;
+
+    int raptor1x = screenWidth + (int) (Math.random()*3000);
+    int raptor2x = screenWidth + (int) (Math.random()*6000);
+    int raptor3x = screenWidth + (int) (Math.random()*9000);
+    int raptor1y = screenHeight - 500, raptor2y = screenHeight - 500, raptor3y = screenHeight - 500;
+
+    int bg1x = 0, bg2x = screenWidth;
+    int bgscrollspeed = screenWidth / 300;
     int bg1type = 0, bg2type = 1;
-    int grompx = width;
-    int grompy = height - 325;
-    int wolfx = width;
-    int wolfy = height - 275;
-    int raptor1x = width + (int) (Math.random()*3000);
-    int raptor2x = width + (int) (Math.random()*6000);
-    int raptor3x = width + (int) (Math.random()*9000);
-    int raptor1y = height - 500, raptor2y = height - 500, raptor3y = height - 500;
+
+    
 
     boolean gameOver = false;
+
     boolean upPressed = false;
     float jumpStrength = 10F;
     float weight = 0.25F;
@@ -75,10 +84,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     public void paint(Graphics g) {
 
         if (!gameOver) {
-            gameOver = false;
+
             //Background
-            g.drawImage(background[bg1type], bg1x, 0, width, height, null);
-            g.drawImage(background[bg2type], bg2x, 0, width, height, null);
+            g.drawImage(background[bg1type], bg1x, 0, screenWidth, screenHeight, null);
+            g.drawImage(background[bg2type], bg2x, 0, screenWidth, screenHeight, null);
 
             //Gromp
             g.drawImage(gromp, grompx, grompy, 200, 200, null);
@@ -91,7 +100,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
             g.drawImage(raptor[1], raptor2x, raptor2y, 100, 100, null);
 
-            
+            g.drawImage(raptor[2], raptor3x, raptor3y, 100, 100, null);
             
 
             //Teemo
@@ -110,35 +119,21 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
                 }
 
             } 
-            
-            // Gromp Collision
 
-            //g.drawRect(grompx + 25, grompy + 25, 150 , 175);
-            //Rectangle representing gromp's hitbox
-            
-            if (teemox < grompx + 25 && teemox + 100 > grompx + 25 || teemox < grompx + 175 && teemox + 100 > grompx + 175 || teemox > grompx + 25 && teemox + 100 < grompx + 175) {
-                if (teemoy + 50 > grompy + 25) {
-                    gameOver = true;
-                }
-            }
-            
-            //Wolf Collision
-            //g.drawRect(wolfx + 25, wolfy + 25, 100 , 100);
-
-            if (teemox < wolfx + 25 && teemox + 100 > wolfx + 25 || teemox < wolfx + 125 && teemox + 100 > wolfx + 125 || teemox > wolfx + 25 && teemox + 100 < wolfx + 175) {
-                if (teemoy + 50 > wolfy + 25) {
-                    gameOver = true;
-                }
-            }
+            //Detects collision
+            enemyCollision(grompx, grompy, grompHitboxCorrection);
+            enemyCollision(wolfx, wolfy, wolfHitboxCorrection);
             
             //Crosshair
             PointerInfo pi = MouseInfo.getPointerInfo();
             Point p = pi.getLocation();
             g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
 
+
         } else {
-            //g.drawImage(background[2], 0, 0, width, height, null);
+            resetGame();
         }
+
         timer.start();
 
     }
@@ -150,11 +145,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         bg2x += -bgscrollspeed;
         
         if (bg1x <= -size.getWidth()) {
-            bg1x = width;
+            bg1x = screenWidth;
             bg1type = (int)Math.floor(Math.random()*(2));
         }
         if (bg2x <= -size.getWidth()) {
-            bg2x = width;
+            bg2x = screenWidth;
             bg2type = (int)Math.floor(Math.random()*(2));
         }
 
@@ -162,55 +157,85 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         if (upPressed == true) {
             teemoy -= jumpStrength;
             jumpStrength -= weight;
-            if (teemoy - jumpStrength >= height - 250) {
+            if (teemoy - jumpStrength >= screenHeight - 250) {
                 upPressed = false;
                 jumpStrength = 10;
-                teemoy = height - 250;
+                teemoy = screenHeight - 250;
             }
         }
 
-        //Gromp
-        grompx += -bgscrollspeed;
-        if (grompx <= -200) {
-            grompx = width + (int) (Math.random()*1000);
-        }
-
-        //Wolf
-        wolfx += -bgscrollspeed*2;
-        if (wolfx <= -200) {
-            wolfx = width + (int) (Math.random()*3000);
-        }
-
+        //Moves enemies
+        grompx = enemyMovement(grompx, 1, 1000);
+        wolfx = enemyMovement(wolfx, 2, 3000);
+        
         //Raptor 1
         raptor1x += -bgscrollspeed*1.5;
         if (raptor1x <= -150) {
-            raptor1x = width + (int) (Math.random() * 5000);
+            raptor1x = screenWidth + (int) (Math.random() * 5000);
         }
         
         //Raptor 2
         raptor2x += -bgscrollspeed*1.5;
         if (raptor2x <= -150) {
-            raptor2x = width + (int) (Math.random() * 5000);
+            raptor2x = screenWidth + (int) (Math.random() * 5000);
         }
         
         //Raptor 3
         raptor3x += -bgscrollspeed*1.5;
         if (raptor3x <= -150) {
-            raptor3x = width + (int) (Math.random() * 5000);
+            raptor3x = screenWidth + (int) (Math.random() * 5000);
         }
+        //Repaints screen
         repaint();
 
+    }    
+
+    //Enemy movement method
+    public int enemyMovement(int x, int speed, int spawnDistance) {
+        if (x <= -200) {
+            return screenWidth + (int) (Math.random() * spawnDistance);
+        } else {
+            return x + -bgscrollspeed * speed;
+        }
+
+    }
+
+    //Enemy collision method
+    public void enemyCollision(int x, int y, int correction) {
+        if (teemox < x + 25 && teemox + 100 > x + 25 || teemox < x + correction && teemox + 100 > x + correction || teemox > x + 25 && teemox + 100 < x + 175) {
+            if (teemoy + 50 > y + 25) {
+                gameOver = true;
+            }
+        }
+    }
+
+    //Resets game
+    public void resetGame() {
+        teemoy = screenHeight - 250;
+        bg1x = 0;
+        bg2x = screenWidth;
+        bg1type = 0;
+        bg2type = 1;
+        grompx = screenWidth;
+        wolfx = screenWidth;
+        raptor1x = screenWidth;
+        raptor2x = screenWidth;
+        raptor3x = screenWidth;
+        gameOver = false;
+        upPressed = false;
+        isCrouch = false; 
+        jumpStrength = 10F;   
     }
 
     //Accept user input
     public void keyPressed(KeyEvent e) {
 
         //Teemo jump
-        if (e.getKeyCode() == KeyEvent.VK_SPACE && upPressed == false && e.getKeyCode() != KeyEvent.VK_DOWN && isCrouch == false) {
+        if (e.getKeyCode() == KeyEvent.VK_SPACE && upPressed == false && e.getKeyCode() != KeyEvent.VK_W && isCrouch == false) {
             upPressed = true;
         } 
         //Teemo Crouch
-        if (e.getKeyCode() == KeyEvent.VK_DOWN && upPressed == false && e.getKeyCode() != KeyEvent.VK_SPACE && isCrouch == false) {
+        if (e.getKeyCode() == KeyEvent.VK_W && upPressed == false && e.getKeyCode() != KeyEvent.VK_SPACE && isCrouch == false) {
             isCrouch = true;
         }
 
@@ -221,7 +246,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
     public void keyReleased(KeyEvent e) {
         //Teemo uncrouch
-        if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+        if (e.getKeyCode() == KeyEvent.VK_W) {
             isCrouch = false;
         }
     }

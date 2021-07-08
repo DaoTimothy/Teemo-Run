@@ -85,9 +85,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
             } else {
 
-                g.drawImage(teemoSprite[(int)counter/18], teemox, teemoy, 100, 100, null);
+                g.drawImage(teemoSprite[(int)counter/10], teemox, teemoy, 100, 100, null);
                 counter++;
-                if (counter >= 108) {
+                if (counter >= 60) {
                     counter = 0;
                 }
 
@@ -95,7 +95,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             
             // Gromp Collision
 
-            //g.drawRect(grompx + 25, grompy + 25, 150 , 175);
+            g.drawRect(grompx + 25, grompy + 25, 150 , 175);
             //Rectangle representing gromp's hitbox
             
             if (teemox < grompx + 25 && teemox + 100 > grompx + 25 || teemox < grompx + 175 && teemox + 100 > grompx + 175 || teemox > grompx + 25 && teemox + 100 < grompx + 175) {

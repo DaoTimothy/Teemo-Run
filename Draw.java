@@ -12,7 +12,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     int screenHeight = (int)size.getHeight();
 
     Timer timer = new Timer(0, this);
-    int counter = 0;
+    int frameCounter = 0;
     
     private BufferedImage crosshair;
     private BufferedImage[] teemoSprite = new BufferedImage[6];
@@ -35,18 +35,18 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     int raptor1x = screenWidth + (int) (Math.random()*3000);
     int raptor2x = screenWidth + (int) (Math.random()*6000);
     int raptor3x = screenWidth + (int) (Math.random()*9000);
-    int raptor1y = screenHeight - 500, raptor2y = screenHeight - 500, raptor3y = screenHeight - 500;
+    int raptory = screenHeight - 600;
 
     int bg1x = 0, bg2x = screenWidth;
-    int bgscrollspeed = screenWidth / 300;
+    int bgscrollspeed = screenWidth / 400;
     int bg1type = 0, bg2type = 1;
-
-    
 
     boolean gameOver = false;
 
     boolean upPressed = false;
-    float jumpStrength = 10F;
+    boolean jumping = false;
+    boolean upUnPressed = false;
+    float jumpStrength = screenHeight / 55;
     float weight = 0.25F;
     boolean isCrouch = false;
 
@@ -96,33 +96,36 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             g.drawImage(wolf, wolfx, wolfy, 150, 150, null);
             
             //Raptors
-            g.drawImage(raptor[0], raptor1x, raptor1y, 100, 100, null);
+            g.drawImage(raptor[0], raptor1x, raptory, 100, 100, null);
 
-            g.drawImage(raptor[1], raptor2x, raptor2y, 100, 100, null);
+            g.drawImage(raptor[1], raptor2x, raptory, 100, 100, null);
 
-            g.drawImage(raptor[2], raptor3x, raptor3y, 100, 100, null);
+            g.drawImage(raptor[2], raptor3x, raptory, 100, 100, null);
             
 
             //Teemo
-            if (isCrouch == true) {
+            if (isCrouch) {
 
                 g.drawImage(teemoHat, teemox, teemoy + 50, 100, 50, null);
 
             } else {
 
-                g.drawImage(teemoSprite[(int)counter/10], teemox, teemoy, 100, 100, null);
-                if (!upPressed) {
-                    counter++;
+                g.drawImage(teemoSprite[(int)frameCounter/10], teemox, teemoy, 100, 100, null);
+                if (!jumping) {
+                    frameCounter++;
                 }
-                if (counter >= 60) {
-                    counter = 0;
+                if (frameCounter >= 60) {
+                    frameCounter = 0;
                 }
 
             } 
 
             //Detects collision
-            enemyCollision(grompx, grompy, grompHitboxCorrection);
-            enemyCollision(wolfx, wolfy, wolfHitboxCorrection);
+            enemyCollision(grompx, grompy, 200, 200, 40);
+            enemyCollision(wolfx, wolfy, 150, 150, 25);
+            enemyCollision(raptor1x, raptory, 100, 100, 25);
+            enemyCollision(raptor2x, raptory, 100, 100, 25);
+            enemyCollision(raptor3x, raptory, 100, 100, 25);
             
             //Crosshair
             PointerInfo pi = MouseInfo.getPointerInfo();
@@ -154,56 +157,56 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         }
 
         //Teemo jumps
-        if (upPressed == true) {
+        
+        if (upUnPressed) {
+            jumping = true;
+            jumpStrength /= 2;
+            upUnPressed = false;
+        } else if (upPressed) {
+            jumping = true;
+        }
+
+        if (jumping) {
             teemoy -= jumpStrength;
             jumpStrength -= weight;
             if (teemoy - jumpStrength >= screenHeight - 250) {
-                upPressed = false;
-                jumpStrength = 10;
+                jumpStrength = screenHeight / 55;
                 teemoy = screenHeight - 250;
+                jumping = false;
             }
         }
 
         //Moves enemies
         grompx = enemyMovement(grompx, 1, 1000);
         wolfx = enemyMovement(wolfx, 2, 3000);
-        
-        //Raptor 1
-        raptor1x += -bgscrollspeed*1.5;
-        if (raptor1x <= -150) {
-            raptor1x = screenWidth + (int) (Math.random() * 5000);
-        }
-        
-        //Raptor 2
-        raptor2x += -bgscrollspeed*1.5;
-        if (raptor2x <= -150) {
-            raptor2x = screenWidth + (int) (Math.random() * 5000);
-        }
-        
-        //Raptor 3
-        raptor3x += -bgscrollspeed*1.5;
-        if (raptor3x <= -150) {
-            raptor3x = screenWidth + (int) (Math.random() * 5000);
-        }
+        raptor1x = enemyMovement(raptor1x, 1.5, 5000);
+        raptor2x = enemyMovement(raptor2x, 1.5, 5000);
+        raptor3x = enemyMovement(raptor3x, 1.5, 5000);
         //Repaints screen
         repaint();
 
     }    
 
     //Enemy movement method
-    public int enemyMovement(int x, int speed, int spawnDistance) {
+    public int enemyMovement(int x, double speed, int spawnDistance) {
         if (x <= -200) {
             return screenWidth + (int) (Math.random() * spawnDistance);
         } else {
-            return x + -bgscrollspeed * speed;
+            return (int) (x + -bgscrollspeed * speed);
         }
 
     }
 
     //Enemy collision method
-    public void enemyCollision(int x, int y, int correction) {
-        if (teemox < x + 25 && teemox + 100 > x + 25 || teemox < x + correction && teemox + 100 > x + correction || teemox > x + 25 && teemox + 100 < x + 175) {
-            if (teemoy + 50 > y + 25) {
+    public void enemyCollision(int ex, int ey, int ewidth, int eheight, int correction) {
+        int teemowidth = 100;
+        int leftSide = ex + correction;
+        int rightSide = ex + ewidth - correction;
+        if (teemox < leftSide && teemox + teemowidth > leftSide || teemox < rightSide && teemox + teemowidth > rightSide || teemox > leftSide && teemox + teemowidth < rightSide) {
+            int teemoheight = 100;
+            int topSide = ey + correction;
+            int botSide = ey + eheight - correction;
+            if (teemoy + teemoheight >= topSide && teemoy <= topSide || teemoy <= botSide && teemoy + teemoheight >= botSide || teemoy >= topSide && teemoy + teemoheight <= botSide) {
                 gameOver = true;
             }
         }
@@ -218,13 +221,15 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         bg2type = 1;
         grompx = screenWidth;
         wolfx = screenWidth;
-        raptor1x = screenWidth;
-        raptor2x = screenWidth;
-        raptor3x = screenWidth;
+        raptor1x = screenWidth + (int) (Math.random()*3000);
+        raptor2x = screenWidth + (int) (Math.random()*6000);
+        raptor3x = screenWidth + (int) (Math.random()*9000);
         gameOver = false;
         upPressed = false;
+        upUnPressed = false;
+        jumping = false;
         isCrouch = false; 
-        jumpStrength = 10F;   
+        jumpStrength = screenHeight / 55;   
     }
 
     //Accept user input
@@ -248,6 +253,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         //Teemo uncrouch
         if (e.getKeyCode() == KeyEvent.VK_W) {
             isCrouch = false;
+        }
+        //Short vs Long jump
+        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+            upPressed = false;
+            upUnPressed = true;
         }
     }
 }

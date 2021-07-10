@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.imageio.ImageIO;
+import java.awt.image.*;
+import java.awt.geom.AffineTransform;
 
 public class Draw extends JPanel implements ActionListener, KeyListener {
     //Declaring variables
@@ -13,6 +15,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
     Timer timer = new Timer(0, this);
     int counter = 0;
+
+    Font scoreFont = new Font("Roboto", Font.PLAIN, 100);
+    int score = 0;
     
     private BufferedImage crosshair;
     private BufferedImage[] teemoSprite = new BufferedImage[6];
@@ -21,8 +26,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     private BufferedImage gromp;
     private BufferedImage wolf;
     private BufferedImage[] raptor = new BufferedImage[3];
+    private BufferedImage teemoDart;
 
     int teemox = screenWidth / 3, teemoy = screenHeight - 250;
+    int dartx = teemox, darty = teemoy, dartAngle = 0;
+    double rotationRequired = 0;
+    AffineTransformOp op;
 
     int grompx = screenWidth;
     int grompy = screenHeight - 325;
@@ -40,8 +49,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     int bg1x = 0, bg2x = screenWidth;
     int bgscrollspeed = screenWidth / 300;
     int bg1type = 0, bg2type = 1;
-
-    
 
     boolean gameOver = false;
 
@@ -71,6 +78,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             raptor[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor1.png"));
             raptor[1] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor2.png"));
             raptor[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor3.png"));
+            teemoDart = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/teemoDart.png"));
 
         } catch (IOException e) {
 
@@ -97,12 +105,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             
             //Raptors
             g.drawImage(raptor[0], raptor1x, raptor1y, 100, 100, null);
-
             g.drawImage(raptor[1], raptor2x, raptor2y, 100, 100, null);
-
             g.drawImage(raptor[2], raptor3x, raptor3y, 100, 100, null);
             
-
             //Teemo
             if (isCrouch == true) {
 
@@ -120,6 +125,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
             } 
 
+            rotateDart();
+            g.drawImage(op.filter(teemoDart, null), dartx, darty, null);
+
             //Detects collision
             enemyCollision(grompx, grompy, grompHitboxCorrection);
             enemyCollision(wolfx, wolfy, wolfHitboxCorrection);
@@ -129,6 +137,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             Point p = pi.getLocation();
             g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
 
+            //Score
+            g.setFont(scoreFont);
+            g.drawString(String.format("%08d", score), 10, 100);
+            score++;
 
         } else {
             resetGame();
@@ -165,30 +177,74 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         }
 
         //Moves enemies
-        grompx = enemyMovement(grompx, 1, 1000);
-        wolfx = enemyMovement(wolfx, 2, 3000);
-        
-        //Raptor 1
-        raptor1x += -bgscrollspeed*1.5;
-        if (raptor1x <= -150) {
-            raptor1x = screenWidth + (int) (Math.random() * 5000);
-        }
-        
-        //Raptor 2
-        raptor2x += -bgscrollspeed*1.5;
-        if (raptor2x <= -150) {
-            raptor2x = screenWidth + (int) (Math.random() * 5000);
-        }
-        
-        //Raptor 3
-        raptor3x += -bgscrollspeed*1.5;
-        if (raptor3x <= -150) {
-            raptor3x = screenWidth + (int) (Math.random() * 5000);
-        }
-        //Repaints screen
+        level();
+
         repaint();
 
-    }    
+    }
+    
+    //Gets angle of dart and teemo
+    public double getAngle(int x, int y) {
+
+        PointerInfo pi = MouseInfo.getPointerInfo();
+        Point p = pi.getLocation();
+
+        double degs = Math.toDegrees(Math.atan((double)Math.abs(((double)screenHeight - (double)y) - ((double)screenHeight - (double)p.getY())) / (double)Math.abs((double)p.getX() - (double)x)));
+
+        return degs;
+
+    }
+
+    //Rotates dart
+    public void rotateDart() {
+
+        PointerInfo pi = MouseInfo.getPointerInfo();
+        Point p = pi.getLocation();
+
+        double locationX = teemoDart.getWidth() / 2;
+        double locationY = teemoDart.getHeight() / 2;
+
+        if (p.getX() > teemox) {
+            rotationRequired = Math.toRadians (-getAngle(teemox, teemoy));
+            AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
+            op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+        } else if (p.getX() <= teemox) {
+            rotationRequired = Math.toRadians (getAngle(teemox, teemoy) - 180);
+            AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
+            op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+        }
+
+        if (p.getY() >= teemoy) {
+            if (p.getX() >= teemox) {
+                rotationRequired = Math.toRadians(0);
+                AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
+                op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+            } else {
+                rotationRequired = Math.toRadians(180);
+                AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
+                op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+            }
+        }
+    }
+
+    //Determines difficulty based of how long player survives
+    public void level() {
+
+        if (score >= 0) {
+            grompx = enemyMovement(grompx, 1, 2000);
+        } 
+        if (score >= 2000) {
+            wolfx = enemyMovement(wolfx, 2, 6000);
+        }
+        if (score >= 5000) {
+            raptor1x = enemyMovement(raptor1x, 2, 3000);
+            raptor2x = enemyMovement(raptor2x, 2, 3000);
+            raptor3x = enemyMovement(raptor3x, 2, 3000); 
+        }
+        if (score == 10000) {
+            bgscrollspeed *= 1.25;
+        }
+    }
 
     //Enemy movement method
     public int enemyMovement(int x, int speed, int spawnDistance) {
@@ -225,6 +281,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         upPressed = false;
         isCrouch = false; 
         jumpStrength = 10F;   
+        score = 0;
+        bgscrollspeed = screenWidth / 300;
     }
 
     //Accept user input

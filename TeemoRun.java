@@ -8,7 +8,7 @@ public class TeemoRun {
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
 
         Draw draw = new Draw();
-
+        
         //Screen setup
         JFrame obj = new JFrame();
 
@@ -24,6 +24,7 @@ public class TeemoRun {
         obj.add(draw);
 
         obj.addKeyListener(draw); 
+        obj.addMouseListener(draw);
 
     }
     

@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.*;
 import java.awt.geom.AffineTransform;
 
-public class Draw extends JPanel implements ActionListener, KeyListener {
+public class Draw extends JPanel implements ActionListener, KeyListener, MouseListener {
     //Declaring variables
     Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
     int screenWidth = (int)size.getWidth();
@@ -125,6 +125,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
             } 
 
+            //Dart
             rotateDart();
             g.drawImage(op.filter(teemoDart, null), dartx, darty, null);
 
@@ -206,25 +207,20 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
         if (p.getX() > teemox) {
             rotationRequired = Math.toRadians (-getAngle(teemox, teemoy));
-            AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
-            op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
         } else if (p.getX() <= teemox) {
             rotationRequired = Math.toRadians (getAngle(teemox, teemoy) - 180);
-            AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
-            op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
         }
-
         if (p.getY() >= teemoy) {
             if (p.getX() >= teemox) {
-                rotationRequired = Math.toRadians(0);
-                AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
-                op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+                rotationRequired = Math.toRadians(getAngle(teemox, teemoy));
             } else {
-                rotationRequired = Math.toRadians(180);
-                AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
-                op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+                rotationRequired = Math.toRadians(-getAngle(teemox, teemoy) + 180);
             }
         }
+
+        AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
+        op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+
     }
 
     //Determines difficulty based of how long player survives
@@ -308,4 +304,22 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             isCrouch = false;
         }
     }
+
+    @Override
+    public void mouseClicked(MouseEvent arg0) { 
+        System.out.println("shot");
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent arg0) { }
+
+    @Override
+    public void mouseExited(MouseEvent arg0) { }
+
+    @Override
+    public void mousePressed(MouseEvent arg0) { }
+
+    @Override
+    public void mouseReleased(MouseEvent arg0) { }
+
 }

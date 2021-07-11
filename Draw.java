@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.imageio.ImageIO;
+import java.awt.image.*;
+import java.awt.geom.AffineTransform;
 
-public class Draw extends JPanel implements ActionListener, KeyListener {
+public class Draw extends JPanel implements ActionListener, KeyListener, MouseListener {
     //Declaring variables
     Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
     int screenWidth = (int)size.getWidth();
@@ -13,6 +15,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
     Timer timer = new Timer(0, this);
     int frameCounter = 0;
+
+    Font scoreFont = new Font("Roboto", Font.PLAIN, 100);
+    int score = 0;
     
     private BufferedImage crosshair;
     private BufferedImage[] teemoSprite = new BufferedImage[6];
@@ -21,8 +26,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
     private BufferedImage gromp;
     private BufferedImage wolf;
     private BufferedImage[] raptor = new BufferedImage[3];
+    private BufferedImage teemoDart;
 
     int teemox = screenWidth / 3, teemoy = screenHeight - 250;
+    int dartx = teemox, darty = teemoy, dartAngle = 0;
+    double rotationRequired = 0;
+    AffineTransformOp op;
 
     int grompx = screenWidth;
     int grompy = screenHeight - 325;
@@ -71,6 +80,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             raptor[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor1.png"));
             raptor[1] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor2.png"));
             raptor[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor3.png"));
+            teemoDart = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/teemoDart.png"));
 
         } catch (IOException e) {
 
@@ -102,7 +112,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
             g.drawImage(raptor[2], raptor3x, raptory, 100, 100, null);
             
-
             //Teemo
             if (isCrouch) {
 
@@ -120,6 +129,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
 
             } 
 
+            //Dart
+            rotateDart();
+            g.drawImage(op.filter(teemoDart, null), dartx, darty, null);
+
             //Detects collision
             enemyCollision(grompx, grompy, 200, 200, 40);
             enemyCollision(wolfx, wolfy, 150, 150, 25);
@@ -132,6 +145,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             Point p = pi.getLocation();
             g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
 
+            //Score
+            g.setFont(scoreFont);
+            g.drawString(String.format("%08d", score), 10, 100);
+            score++;
 
         } else {
             resetGame();
@@ -183,9 +200,69 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         raptor2x = enemyMovement(raptor2x, 1.5, 5000);
         raptor3x = enemyMovement(raptor3x, 1.5, 5000);
         //Repaints screen
+        level();
+
         repaint();
 
-    }    
+    }
+    
+    //Gets angle of dart and teemo
+    public double getAngle(int x, int y) {
+
+        PointerInfo pi = MouseInfo.getPointerInfo();
+        Point p = pi.getLocation();
+
+        double degs = Math.toDegrees(Math.atan((double)Math.abs(((double)screenHeight - (double)y) - ((double)screenHeight - (double)p.getY())) / (double)Math.abs((double)p.getX() - (double)x)));
+
+        return degs;
+
+    }
+
+    //Rotates dart
+    public void rotateDart() {
+
+        PointerInfo pi = MouseInfo.getPointerInfo();
+        Point p = pi.getLocation();
+
+        double locationX = teemoDart.getWidth() / 2;
+        double locationY = teemoDart.getHeight() / 2;
+
+        if (p.getX() > teemox) {
+            rotationRequired = Math.toRadians (-getAngle(teemox, teemoy));
+        } else if (p.getX() <= teemox) {
+            rotationRequired = Math.toRadians (getAngle(teemox, teemoy) - 180);
+        }
+        if (p.getY() >= teemoy) {
+            if (p.getX() >= teemox) {
+                rotationRequired = Math.toRadians(getAngle(teemox, teemoy));
+            } else {
+                rotationRequired = Math.toRadians(-getAngle(teemox, teemoy) + 180);
+            }
+        }
+
+        AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
+        op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+
+    }
+
+    //Determines difficulty based of how long player survives
+    public void level() {
+
+        if (score >= 0) {
+            grompx = enemyMovement(grompx, 1, 2000);
+        } 
+        if (score >= 2000) {
+            wolfx = enemyMovement(wolfx, 2, 6000);
+        }
+        if (score >= 5000) {
+            raptor1x = enemyMovement(raptor1x, 2, 3000);
+            raptor2x = enemyMovement(raptor2x, 2, 3000);
+            raptor3x = enemyMovement(raptor3x, 2, 3000); 
+        }
+        if (score == 10000) {
+            bgscrollspeed *= 1.25;
+        }
+    }
 
     //Enemy movement method
     public int enemyMovement(int x, double speed, int spawnDistance) {
@@ -230,6 +307,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
         jumping = false;
         isCrouch = false; 
         jumpStrength = screenHeight / 55;   
+        score = 0;
+        bgscrollspeed = screenWidth / 300;
     }
 
     //Accept user input
@@ -260,4 +339,22 @@ public class Draw extends JPanel implements ActionListener, KeyListener {
             upUnPressed = true;
         }
     }
+
+    @Override
+    public void mouseClicked(MouseEvent arg0) { 
+        System.out.println("shot");
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent arg0) { }
+
+    @Override
+    public void mouseExited(MouseEvent arg0) { }
+
+    @Override
+    public void mousePressed(MouseEvent arg0) { }
+
+    @Override
+    public void mouseReleased(MouseEvent arg0) { }
+
 }

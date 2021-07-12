@@ -56,7 +56,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     boolean jumping = false;
     boolean upUnPressed = false;
     float jumpStrength = screenHeight / 55;
-    float weight = 0.25F;
+    float weight = 0.35F;
     boolean isCrouch = false;
 
     public Draw() {
@@ -177,7 +177,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         
         if (upUnPressed) {
             jumping = true;
-            jumpStrength /= 2;
+            if (jumpStrength > 0) {
+                jumpStrength /= 2;
+            }
             upUnPressed = false;
         } else if (upPressed) {
             jumping = true;
@@ -193,12 +195,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             }
         }
 
-        //Moves enemies
-        grompx = enemyMovement(grompx, 1, 1000);
-        wolfx = enemyMovement(wolfx, 2, 3000);
-        raptor1x = enemyMovement(raptor1x, 1.5, 5000);
-        raptor2x = enemyMovement(raptor2x, 1.5, 5000);
-        raptor3x = enemyMovement(raptor3x, 1.5, 5000);
         //Repaints screen
         level();
 
@@ -259,7 +255,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             raptor2x = enemyMovement(raptor2x, 2, 3000);
             raptor3x = enemyMovement(raptor3x, 2, 3000); 
         }
-        if (score == 10000) {
+        if (score % 10000 == 0) {
             bgscrollspeed *= 1.25;
         }
     }

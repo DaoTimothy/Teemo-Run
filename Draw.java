@@ -21,8 +21,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     int frameCounter = 0;
 
     Color buttonGreen = new Color (51, 153, 102);
+    Color healthGreen = new Color (30, 84, 28);
     Font buttonFont = new Font("Roboto", Font.PLAIN, 75);
     Font scoreFont = new Font("Roboto", Font.PLAIN, 50);
+    Font healthFont = new Font("Roboto", Font.PLAIN, 25);
     int score = 0;
     
     private BufferedImage crosshair;
@@ -35,6 +37,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     private BufferedImage teemoDart;
 
     int teemox = screenWidth / 3, teemoy = screenHeight - 250;
+    int teemoMaxHealth = 3, teemoHealth = teemoMaxHealth;
     int dartx = teemox, darty = teemoy, dartAngle = 0;
     double rotationRequired = 0;
     AffineTransformOp op;
@@ -96,115 +99,19 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
     //Draw stuff of screen
     public void paint(Graphics g) {
-        //System.out.println (gameState);
         switch (gameState) {
             case "Menu":
-                g.drawImage(background[2], 0, 0, screenWidth, screenHeight, null);
-                
-                g.setFont(buttonFont);
-
-                g.setColor(buttonGreen);
-                g.fillRect(screenWidth / 2 - 400, screenHeight - 400, 300, 200);
-                g.fillRect(screenWidth / 2 + 100, screenHeight - 400, 300, 200);
-                
-
-                pi = MouseInfo.getPointerInfo();
-                p = pi.getLocation();
-                int mouseX = (int)p.getX();
-                int mouseY = (int)p.getY();
-                if (mouseX > screenWidth / 2 - 400 && mouseX < screenWidth / 2 - 100 && mouseY > screenHeight - 400 && mouseY < screenHeight - 200) {
-                    g.setColor(Color.WHITE);
-                    g.drawString("Play", screenWidth / 2 - 325, screenHeight - 275);
-                    g.setColor(Color.BLACK);
-                    g.drawString("Shop", screenWidth / 2 + 160, screenHeight - 275);
-                    if (mouseClicked) {
-                        gameState = "Game";
-                        mouseClicked = false;
-                    }
-                } else if (mouseX > screenWidth / 2 + 100 && mouseX < screenWidth / 2 + 300 && mouseY > screenHeight - 400 && mouseY < screenHeight - 200) {
-                    g.setColor(Color.BLACK);
-                    g.drawString("Play", screenWidth / 2 - 325, screenHeight - 275);
-                    g.setColor(Color.WHITE);
-                    g.drawString("Shop", screenWidth / 2 + 160, screenHeight - 275);
-                    if (mouseClicked) {
-                        gameState = "Shop";
-                        mouseClicked = false;
-                    }
-                } else {
-                    g.setColor(Color.BLACK);
-                    g.drawString("Shop", screenWidth / 2 + 160, screenHeight - 275);
-                    g.drawString("Play", screenWidth / 2 - 325, screenHeight - 275);
-                }
-                
-                g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
-
+                drawMenu(g);
                 break;
             case "Shop":
                 break;
             case "Game":
-                //Background
-                g.drawImage(background[bg1type], bg1x, 0, screenWidth, screenHeight, null);
-                g.drawImage(background[bg2type], bg2x, 0, screenWidth, screenHeight, null);
-
-                //Gromp
-                g.drawImage(gromp, grompx, grompy, 200, 200, null);
-                
-                //Wolf
-                g.drawImage(wolf, wolfx, wolfy, 150, 150, null);
-                
-                //Raptors
-                g.drawImage(raptor[0], raptor1x, raptory, 100, 100, null);
-
-                g.drawImage(raptor[1], raptor2x, raptory, 100, 100, null);
-
-                g.drawImage(raptor[2], raptor3x, raptory, 100, 100, null);
-                
-                //Teemo
-                if (isCrouch) {
-
-                    g.drawImage(teemoHat, teemox, teemoy + 50, 100, 50, null);
-
-                } else {
-
-                    g.drawImage(teemoSprite[(int)frameCounter/10], teemox, teemoy, 100, 100, null);
-                    if (!jumping) {
-                        frameCounter++;
-                    }
-                    if (frameCounter >= 60) {
-                        frameCounter = 0;
-                    }
-
-                } 
-
-                //Dart
-                rotateDart();
-                g.drawImage(op.filter(teemoDart, null), dartx, darty, null);
-
-                //Detects collision
-                enemyCollision(grompx, grompy, 200, 200, 40);
-                enemyCollision(wolfx, wolfy, 150, 150, 25);
-                enemyCollision(raptor1x, raptory, 100, 100, 25);
-                enemyCollision(raptor2x, raptory, 100, 100, 25);
-                enemyCollision(raptor3x, raptory, 100, 100, 25);
-                
-                //Crosshair
-                pi = MouseInfo.getPointerInfo();
-                p = pi.getLocation();
-                g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
-
-                //Score
-                g.setColor(Color.WHITE);
-                g.setFont(scoreFont);
-                g.drawString(String.format("Score: %08d", score), screenWidth - 500, 50);
-                score++;
-
-                if (gameOver) {
-                    gameState = "GameOver";
-                }
+                drawGame(g);
                 break;
             case "GameOver":
                 resetGame();
-                gameState = "Game";
+                gameState = "Menu";
+                gameOver = false;
                 break;
         }
 
@@ -229,7 +136,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 }
 
                 //Teemo jumps
-                
                 if (upUnPressed) {
                     jumping = true;
                     if (jumpStrength > 0) {
@@ -253,11 +159,145 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 //Repaints screen
                 level();
 
-                
                 break;
         }
         
         repaint();
+    }
+
+    //Drawing menu method
+    public void drawMenu(Graphics g) {
+
+        g.drawImage(background[2], 0, 0, screenWidth, screenHeight, null);
+                
+        g.setFont(buttonFont);
+
+        g.setColor(buttonGreen);
+        g.fillRect(screenWidth / 2 - 400, screenHeight - 400, 300, 200);
+        g.fillRect(screenWidth / 2 + 100, screenHeight - 400, 300, 200);
+
+        pi = MouseInfo.getPointerInfo();
+        p = pi.getLocation();
+        int mouseX = (int)p.getX();
+        int mouseY = (int)p.getY();
+        if (mouseX > screenWidth / 2 - 400 && mouseX < screenWidth / 2 - 100 && mouseY > screenHeight - 400 && mouseY < screenHeight - 200) {
+            g.setColor(Color.WHITE);
+            g.drawString("Play", screenWidth / 2 - 325, screenHeight - 275);
+            g.setColor(Color.BLACK);
+            g.drawString("Shop", screenWidth / 2 + 160, screenHeight - 275);
+            if (mouseClicked) {
+                gameState = "Game";
+                mouseClicked = false;
+            }
+        } else if (mouseX > screenWidth / 2 + 100 && mouseX < screenWidth / 2 + 300 && mouseY > screenHeight - 400 && mouseY < screenHeight - 200) {
+            g.setColor(Color.BLACK);
+            g.drawString("Play", screenWidth / 2 - 325, screenHeight - 275);
+            g.setColor(Color.WHITE);
+            g.drawString("Shop", screenWidth / 2 + 160, screenHeight - 275);
+            if (mouseClicked) {
+                gameState = "Shop";
+                mouseClicked = false;
+            }
+        } else {
+            g.setColor(Color.BLACK);
+            g.drawString("Shop", screenWidth / 2 + 160, screenHeight - 275);
+            g.drawString("Play", screenWidth / 2 - 325, screenHeight - 275);
+        }
+        
+        g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
+
+    }
+
+    //Drawing the actual game method
+    public void drawGame(Graphics g) {
+
+        //Background
+        g.drawImage(background[bg1type], bg1x, 0, screenWidth, screenHeight, null);
+        g.drawImage(background[bg2type], bg2x, 0, screenWidth, screenHeight, null);
+
+        //Gromp
+        g.drawImage(gromp, grompx, grompy, 200, 200, null);
+        
+        //Wolf
+        g.drawImage(wolf, wolfx, wolfy, 150, 150, null);
+        
+        //Raptors
+        g.drawImage(raptor[0], raptor1x, raptory, 100, 100, null);
+
+        g.drawImage(raptor[1], raptor2x, raptory, 100, 100, null);
+
+        g.drawImage(raptor[2], raptor3x, raptory, 100, 100, null);
+        
+        //Teemo
+        if (isCrouch) {
+
+            g.drawImage(teemoHat, teemox, teemoy + 50, 100, 50, null);
+
+        } else {
+
+            g.drawImage(teemoSprite[(int)frameCounter/10], teemox, teemoy, 100, 100, null);
+            if (!jumping) {
+                frameCounter++;
+            }
+            if (frameCounter >= 60) {
+                frameCounter = 0;
+            }
+
+        } 
+
+        //Dart
+        rotateDart();
+        g.drawImage(op.filter(teemoDart, null), dartx, darty, null);
+
+        //Detects collision
+        grompx = enemyCollision(grompx, grompy, 200, 200, 40);
+        wolfx = enemyCollision(wolfx, wolfy, 150, 150, 25);
+        raptor1x = enemyCollision(raptor1x, raptory, 100, 100, 25);
+        raptor2x = enemyCollision(raptor2x, raptory, 100, 100, 25);
+        raptor3x = enemyCollision(raptor3x, raptory, 100, 100, 25);
+        
+        //Crosshair
+        pi = MouseInfo.getPointerInfo();
+        p = pi.getLocation();
+        g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
+
+        //Score
+        g.setColor(Color.WHITE);
+        g.setFont(scoreFont);
+        g.drawString(String.format("Score: %08d", score), screenWidth - 500, 50);
+        score++;
+
+        //Health
+        drawHealthBar(g);
+
+        if (gameOver) {
+            gameState = "GameOver";
+        }
+        
+    }
+
+    //Drawing health bar method
+    public void drawHealthBar(Graphics g) {
+
+        g.setColor(Color.BLACK);
+        g.fillRect(5, 5, 710, 60);
+
+        g.setColor(Color.GRAY);
+        g.fillRect(10, 10, 700, 50);
+
+        g.setColor(healthGreen);
+        g.fillRect(10, 10, 700 / teemoMaxHealth * teemoHealth + 1, 50);
+
+        g.setColor(Color.BLACK);
+        g.setFont(healthFont);
+        g.drawString(String.valueOf(teemoHealth) + "/" + String.valueOf(teemoMaxHealth), 335, 50);
+
+        for(int i = teemoMaxHealth; i > 0; i--) {
+
+            g.fillRect(10 + 700 / teemoMaxHealth * i, 4, 5, 20);
+
+        }
+
     }
     
     //Gets angle of dart and teemo
@@ -329,7 +369,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     //Enemy collision method
-    public void enemyCollision(int ex, int ey, int ewidth, int eheight, int correction) {
+    public int enemyCollision(int ex, int ey, int ewidth, int eheight, int correction) {
         int teemowidth = 100;
         int leftSide = ex + correction;
         int rightSide = ex + ewidth - correction;
@@ -338,14 +378,20 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             int topSide = ey + correction;
             int botSide = ey + eheight - correction;
             if (teemoy + teemoheight >= topSide && teemoy <= topSide || teemoy <= botSide && teemoy + teemoheight >= botSide || teemoy >= topSide && teemoy + teemoheight <= botSide) {
-                gameOver = true;
+                teemoHealth -= 1;
+                if (teemoHealth == 0) {
+                    gameOver = true;
+                }
+                return -200;
             }
         }
+        return ex;
     }
 
     //Resets game
     public void resetGame() {
         teemoy = screenHeight - 250;
+        teemoHealth = teemoMaxHealth;
         bg1x = 0;
         bg2x = screenWidth;
         bg1type = 0;
@@ -355,7 +401,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         raptor1x = screenWidth + (int) (Math.random()*3000);
         raptor2x = screenWidth + (int) (Math.random()*6000);
         raptor3x = screenWidth + (int) (Math.random()*9000);
-        gameOver = false;
         upPressed = false;
         upUnPressed = false;
         jumping = false;

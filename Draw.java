@@ -21,7 +21,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     int frameCounter = 0;
 
     Color buttonGreen = new Color (51, 153, 102);
-    Color healthGreen = new Color (30, 84, 28);
+    Color healthGreen = new Color (12, 186, 6);
     Font buttonFont = new Font("Roboto", Font.PLAIN, 75);
     Font scoreFont = new Font("Roboto", Font.PLAIN, 50);
     Font healthFont = new Font("Roboto", Font.PLAIN, 25);
@@ -37,8 +37,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     private BufferedImage teemoDart;
 
     int teemox = screenWidth / 3, teemoy = screenHeight - 250;
-    int teemoMaxHealth = 3, teemoHealth = teemoMaxHealth;
+    int teemoMaxHealth = 10, teemoHealth = teemoMaxHealth;
     int dartx = teemox, darty = teemoy, dartAngle = 0;
+    double dartSpeed = 7.5;
+    double xPerFrame = 0, yPerFrame = 0;
+    boolean isDartMoving = false;
     double rotationRequired = 0;
     AffineTransformOp op;
 
@@ -156,8 +159,21 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                     }
                 }
 
+                if (isDartMoving == false) {
+
+                    darty = teemoy;
+                    dartx = teemox;
+
+                }
+
                 //Repaints screen
                 level();
+
+                getDartMovement();
+
+                moveDart();
+
+                resetDart();
 
                 break;
         }
@@ -301,12 +317,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     }
     
     //Gets angle of dart and teemo
-    public double getAngle(int x, int y) {
+    public double getAngle() {
 
         PointerInfo pi = MouseInfo.getPointerInfo();
         Point p = pi.getLocation();
 
-        double degs = Math.toDegrees(Math.atan((double)Math.abs(((double)screenHeight - (double)y) - ((double)screenHeight - (double)p.getY())) / (double)Math.abs((double)p.getX() - (double)x)));
+        double degs = Math.toDegrees(Math.atan((double)Math.abs(((double)screenHeight - (double)darty) - ((double)screenHeight - (double)p.getY())) / (double)Math.abs((double)p.getX() - (double)dartx)));
 
         return degs;
 
@@ -315,28 +331,80 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     //Rotates dart
     public void rotateDart() {
 
-        PointerInfo pi = MouseInfo.getPointerInfo();
-        Point p = pi.getLocation();
+        if (isDartMoving == false) {
 
-        double locationX = teemoDart.getWidth() / 2;
-        double locationY = teemoDart.getHeight() / 2;
+            PointerInfo pi = MouseInfo.getPointerInfo();
+            Point p = pi.getLocation();
 
-        if (p.getX() > teemox) {
-            rotationRequired = Math.toRadians (-getAngle(teemox, teemoy));
-        } else if (p.getX() <= teemox) {
-            rotationRequired = Math.toRadians (getAngle(teemox, teemoy) - 180);
-        }
-        if (p.getY() >= teemoy) {
-            if (p.getX() >= teemox) {
-                rotationRequired = Math.toRadians(getAngle(teemox, teemoy));
-            } else {
-                rotationRequired = Math.toRadians(-getAngle(teemox, teemoy) + 180);
+            double locationX = teemoDart.getWidth() / 2;
+            double locationY = teemoDart.getHeight() / 2;
+
+            if (p.getX() > teemox) {
+                rotationRequired = Math.toRadians (-getAngle());
+            } else if (p.getX() <= teemox) {
+                rotationRequired = Math.toRadians (getAngle() - 180);
             }
+            if (p.getY() >= teemoy) {
+                if (p.getX() >= teemox) {
+                    rotationRequired = Math.toRadians(getAngle());
+                } else {
+                    rotationRequired = Math.toRadians(-getAngle() + 180);
+                }
+            }
+
+            AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
+            op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+
         }
 
-        AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
-        op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+    }
 
+    //Gets the amount of x and y the dart is going to move by
+    public void getDartMovement() {
+
+        if (isDartMoving == false) {
+
+            xPerFrame = (double)dartSpeed * Math.cos(Math.toRadians(getAngle()));
+            yPerFrame = (double)dartSpeed * Math.sin(Math.toRadians(getAngle()));
+
+            PointerInfo pi = MouseInfo.getPointerInfo();
+            Point p = pi.getLocation();
+
+            if (p.getX() < teemox) {
+
+                xPerFrame = -xPerFrame;
+            }
+            if (p.getY() > teemoy) {
+
+                yPerFrame = -yPerFrame;
+
+            }
+
+        }
+
+    }
+
+    //Moves the dart
+    public void moveDart() {
+
+        if (isDartMoving == true) {
+
+            dartx += xPerFrame;
+            darty -= yPerFrame;
+
+        }
+
+    }
+
+    //Resets dart when hit border
+    public void resetDart() {
+
+        if (dartx > screenWidth + 50 || dartx < -50 || darty > screenHeight + 50 || darty < -50) {
+    
+            isDartMoving = false;
+    
+        }
+    
     }
 
     //Determines difficulty based of how long player survives
@@ -436,6 +504,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
             upPressed = false;
             upUnPressed = true;
+        }
+
+        if (gameState == "Game" && e.getKeyCode() == KeyEvent.VK_E) {
+            isDartMoving = true;
         }
     }
 

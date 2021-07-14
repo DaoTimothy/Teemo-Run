@@ -32,13 +32,13 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     private BufferedImage[] teemoSprite = new BufferedImage[6];
     private BufferedImage teemoHat;
     private BufferedImage[] background = new BufferedImage[3];
-    private BufferedImage gromp;
-    private BufferedImage wolf;
+    private BufferedImage grompImg;
+    private BufferedImage wolfImg;
     private BufferedImage[] raptor = new BufferedImage[3];
     private BufferedImage teemoDart;
 
     int teemox = screenWidth / 3, teemoy = screenHeight - 250;
-    int teemoMaxHealth = 1, teemoHealth = teemoMaxHealth;
+    int teemoMaxHealth = 10;
     int dartx = teemox, darty = teemoy, dartAngle = 0;
     double dartSpeed = 7.5;
     double xPerFrame = 0, yPerFrame = 0;
@@ -46,19 +46,14 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     double rotationRequired = 0;
     AffineTransformOp op;
 
-    int grompx = screenWidth;
-    int grompy = screenHeight - 325;
-
-    int wolfx = screenWidth + 500;
-    int wolfy = screenHeight - 275;
-
-    int raptor1x = screenWidth + (int) (Math.random()*3000);
-    int raptor2x = screenWidth + (int) (Math.random()*6000);
-    int raptor3x = screenWidth + (int) (Math.random()*9000);
-    int raptory = screenHeight - 600;
+    Enemy settings;
+    Enemy gromp;
+    Enemy wolf;
+    Enemy raptor1;
+    Enemy raptor2;
+    Enemy raptor3;
 
     int bg1x = 0, bg2x = screenWidth;
-    int bgscrollspeed = screenWidth / 300;
     int bg1type = 0, bg2type = 1;
 
     boolean gameOver = false;
@@ -86,12 +81,19 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             background[0] = ImageIO.read(getClass().getResourceAsStream("/Images/background.png"));
             background[1] = ImageIO.read(getClass().getResourceAsStream("/Images/background2.png"));
             background[2] = ImageIO.read(getClass().getResourceAsStream("/Images/MenuBackground.png"));
-            gromp = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Gromp.png"));
-            wolf = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Murk-Wolf.png"));
+            grompImg = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Gromp.png"));
+            wolfImg = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Murk-Wolf.png"));
             raptor[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor1.png"));
             raptor[1] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor2.png"));
             raptor[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor3.png"));
             teemoDart = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/teemoDart.png"));
+           
+            settings = new Enemy (teemoMaxHealth, screenWidth, screenWidth / 300);
+            gromp = new Enemy (grompImg, screenWidth, screenHeight - 325, 200, 200, 1, 2000, 40);
+            wolf = new Enemy (wolfImg, screenWidth, screenHeight - 275, 150, 150, 2, 6000, 25);
+            raptor1 = new Enemy(raptor[0], screenWidth, screenHeight - 600, 100, 100, 2, 3000, 25);
+            raptor2 = new Enemy(raptor[1], screenWidth + 400, screenHeight - 600, 100, 100, 2, 3000, 25);
+            raptor3 = new Enemy(raptor[2], screenWidth + 800, screenHeight - 600, 100, 100, 2, 3000, 25);
 
         } catch (IOException e) {
 
@@ -125,8 +127,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         switch (gameState) {
             case "Game":
                 //Scroll background
-                bg1x += -bgscrollspeed;
-                bg2x += -bgscrollspeed;
+                bg1x += -Enemy.bgscrollspeed;
+                bg2x += -Enemy.bgscrollspeed;
                 
                 if (bg1x <= -size.getWidth()) {
                     bg1x = screenWidth;
@@ -166,7 +168,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 }
 
                 //Repaints screen
-                level();
+                
 
                 getDartMovement();
 
@@ -231,18 +233,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.drawImage(background[bg1type], bg1x, 0, screenWidth, screenHeight, null);
         g.drawImage(background[bg2type], bg2x, 0, screenWidth, screenHeight, null);
 
-        //Gromp
-        g.drawImage(gromp, grompx, grompy, 200, 200, null);
-        
-        //Wolf
-        g.drawImage(wolf, wolfx, wolfy, 150, 150, null);
-        
-        //Raptors
-        g.drawImage(raptor[0], raptor1x, raptory, 100, 100, null);
-
-        g.drawImage(raptor[1], raptor2x, raptory, 100, 100, null);
-
-        g.drawImage(raptor[2], raptor3x, raptory, 100, 100, null);
+        //Draws enemies and calculates collision
+        level(g);
         
         //Teemo
         if (isCrouch) {
@@ -252,7 +244,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         } else {
 
             g.drawImage(teemoSprite[(int)frameCounter/10], teemox, teemoy, 100, 100, null);
-            if (jumping || gameOver) {
+            if (jumping || Enemy.teemoHealth <= 0) {
             } else {
                 frameCounter++;
             }
@@ -263,20 +255,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         } 
 
         //Dart
-        if (!gameOver) {
+        if (Enemy.teemoHealth > 0) {
             rotateDart();
         }
         g.drawImage(op.filter(teemoDart, null), dartx, darty, null);
 
-        //Detects collision
-        if (!gameOver) {
-            grompx = enemyCollision(grompx, grompy, 200, 200, 40);
-            wolfx = enemyCollision(wolfx, wolfy, 150, 150, 25);
-            raptor1x = enemyCollision(raptor1x, raptory, 100, 100, 25);
-            raptor2x = enemyCollision(raptor2x, raptory, 100, 100, 25);
-            raptor3x = enemyCollision(raptor3x, raptory, 100, 100, 25);
-        }
-        
         //Crosshair
         pi = MouseInfo.getPointerInfo();
         p = pi.getLocation();
@@ -286,14 +269,14 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.setColor(Color.WHITE);
         g.setFont(scoreFont);
         g.drawString(String.format("Score: %08d", score), screenWidth - 500, 50);
-        if (!gameOver) {
+        if (Enemy.teemoHealth > 0) {
             score++;
         }
 
         //Health
         drawHealthBar(g);
 
-        if (gameOver) {
+        if (Enemy.teemoHealth <= 0) {
             gameState = "GameOver";
         }
         
@@ -309,11 +292,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.fillRect(10, 10, 700, 50);
 
         g.setColor(healthGreen);
-        g.fillRect(10, 10, 700 / teemoMaxHealth * teemoHealth + 1, 50);
+        g.fillRect(10, 10, 700 / teemoMaxHealth * Enemy.teemoHealth + 1, 50);
 
         g.setColor(Color.BLACK);
         g.setFont(healthFont);
-        g.drawString(String.valueOf(teemoHealth) + "/" + String.valueOf(teemoMaxHealth), 335, 50);
+        g.drawString(String.valueOf(Enemy.teemoHealth) + "/" + String.valueOf(teemoMaxHealth), 335, 50);
 
         for(int i = teemoMaxHealth; i > 0; i--) {
 
@@ -324,7 +307,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     public void drawGameOver (Graphics g) {
-        bgscrollspeed = 0;
+        Enemy.bgscrollspeed = 0;
         drawGame(g);
         g.setFont(gameoverButtonFont);
 
@@ -470,76 +453,39 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     //Determines difficulty based of how long player survives
-    public void level() {
+    public void level(Graphics g) {
 
         if (score >= 0) {
-            grompx = enemyMovement(grompx, 1, 2000);
+            gromp.behavior(g, teemox, teemoy);
         } 
-        if (score >= 2000) {
-            wolfx = enemyMovement(wolfx, 2, 6000);
+        if (score >= 1000) {
+            wolf.behavior(g, teemox, teemoy);
         }
-        if (score >= 5000) {
-            raptor1x = enemyMovement(raptor1x, 2, 3000);
-            raptor2x = enemyMovement(raptor2x, 2, 3000);
-            raptor3x = enemyMovement(raptor3x, 2, 3000); 
+        if (score >= 3000) {
+            raptor1.behavior(g, teemox, teemoy);
+            raptor2.behavior(g, teemox, teemoy);
+            raptor3.behavior(g, teemox, teemoy);
         }
-        if (score % 10000 == 0) {
-            bgscrollspeed *= 1.25;
+        if (score % 100 == 0) {
+            Enemy.bgscrollspeed *= 1.25;
         }
-    }
-
-    //Enemy movement method
-    public int enemyMovement(int x, double speed, int spawnDistance) {
-        if (x <= -200) {
-            return screenWidth + (int) (Math.random() * spawnDistance);
-        } else {
-            return (int) (x + -bgscrollspeed * speed);
-        }
-
-    }
-
-    //Enemy collision method
-    public int enemyCollision(int ex, int ey, int ewidth, int eheight, int correction) {
-        int teemowidth = 100;
-        int leftSide = ex + correction;
-        int rightSide = ex + ewidth - correction;
-        if (teemox < leftSide && teemox + teemowidth > leftSide || teemox < rightSide && teemox + teemowidth > rightSide || teemox > leftSide && teemox + teemowidth < rightSide) {
-            int teemoheight = 100;
-            int topSide = ey + correction;
-            int botSide = ey + eheight - correction;
-            if (teemoy + teemoheight >= topSide && teemoy <= topSide || teemoy <= botSide && teemoy + teemoheight >= botSide || teemoy >= topSide && teemoy + teemoheight <= botSide) {
-                teemoHealth -= 1;
-                if (teemoHealth <= 0) {
-                    gameOver = true;
-                    return ex;
-                }
-                return -200;
-            }
-        }
-        return ex;
     }
 
     //Resets game
     public void resetGame() {
         teemoy = screenHeight - 250;
-        teemoHealth = teemoMaxHealth;
+        Enemy.teemoHealth = teemoMaxHealth;
         bg1x = 0;
         bg2x = screenWidth;
         bg1type = 0;
         bg2type = 1;
-        grompx = screenWidth;
-        wolfx = screenWidth;
-        raptor1x = screenWidth + (int) (Math.random()*3000);
-        raptor2x = screenWidth + (int) (Math.random()*6000);
-        raptor3x = screenWidth + (int) (Math.random()*9000);
         upPressed = false;
         upUnPressed = false;
         jumping = false;
         isCrouch = false; 
         jumpStrength = screenHeight / 55;   
         score = 0;
-        bgscrollspeed = screenWidth / 300;
-        gameOver = false;
+        Enemy.bgscrollspeed = screenWidth / 300;
     }
 
     //Accept user input

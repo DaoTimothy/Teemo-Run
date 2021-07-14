@@ -38,7 +38,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     private BufferedImage teemoDart;
 
     int teemox = screenWidth / 3, teemoy = screenHeight - 250;
-    int teemoMaxHealth = 10;
+    int teemoMaxHealth = 3;
     int dartx = teemox, darty = teemoy, dartAngle = 0;
     double dartSpeed = 7.5;
     double xPerFrame = 0, yPerFrame = 0;
@@ -466,7 +466,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             raptor2.behavior(g, teemox, teemoy);
             raptor3.behavior(g, teemox, teemoy);
         }
-        if (score % 100 == 0) {
+        if (score % 5000 == 0) {
             Enemy.bgscrollspeed *= 1.25;
         }
     }

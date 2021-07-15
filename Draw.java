@@ -22,7 +22,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
     Color buttonGreen = new Color (51, 153, 102);
     Color healthGreen = new Color (12, 186, 6);
+    Color shopBlue = new Color (51, 153, 255);
+    Color shopButtonBlue = new Color (51, 102, 153);
+    Font titleFont = new Font("Roboto", Font.BOLD, 100);
     Font buttonFont = new Font("Roboto", Font.PLAIN, 75);
+    Font shopButtonFont = new Font ("Roboto", Font.PLAIN, 20);
     Font gameoverButtonFont = new Font ("Roboto", Font.PLAIN, 50);
     Font scoreFont = new Font("Roboto", Font.PLAIN, 50);
     Font healthFont = new Font("Roboto", Font.PLAIN, 25);
@@ -31,11 +35,13 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     private BufferedImage crosshair;
     private BufferedImage[] teemoSprite = new BufferedImage[6];
     private BufferedImage teemoHat;
-    private BufferedImage[] background = new BufferedImage[3];
+    private BufferedImage[] background = new BufferedImage[4];
     private BufferedImage grompImg;
     private BufferedImage wolfImg;
     private BufferedImage[] raptor = new BufferedImage[3];
     private BufferedImage teemoDart;
+    private BufferedImage[] items = new BufferedImage[6];
+    private BufferedImage leagueCoin;
 
     int teemox = screenWidth / 3, teemoy = screenHeight - 250;
     int teemoMaxHealth = 3;
@@ -78,16 +84,24 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             teemoSprite[4] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo5.png"));
             teemoSprite[5] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo6.png"));
             teemoHat = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/TeemoHat.png"));
-            background[0] = ImageIO.read(getClass().getResourceAsStream("/Images/background.png"));
-            background[1] = ImageIO.read(getClass().getResourceAsStream("/Images/background2.png"));
-            background[2] = ImageIO.read(getClass().getResourceAsStream("/Images/MenuBackground.png"));
+            background[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Backgrounds/background.png"));
+            background[1] = ImageIO.read(getClass().getResourceAsStream("/Images/Backgrounds/background2.png"));
+            background[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Backgrounds/MenuBackground.png"));
+            background[3] = ImageIO.read(getClass().getResourceAsStream("/Images/Backgrounds/placeholder_ShopBackground.png"));
             grompImg = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Gromp.png"));
             wolfImg = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Murk-Wolf.png"));
             raptor[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor1.png"));
             raptor[1] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor2.png"));
             raptor[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor3.png"));
             teemoDart = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/teemoDart.png"));
-           
+            items[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/Warmogs.png"));
+            items[1] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/Boots_of_Swiftness.png"));
+            items[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/Mobility_Boots.png"));
+            items[3] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/IE.png"));
+            items[4] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/Noonquiver.png"));
+            items[5] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/TP.png"));
+            leagueCoin = ImageIO.read(getClass().getResourceAsStream("/Images/LeagueCoin.png"));
+
             settings = new Enemy (teemoMaxHealth, screenWidth, screenWidth / 300);
             gromp = new Enemy (grompImg, screenWidth, screenHeight - 325, 200, 200, 1, 2000, 40);
             wolf = new Enemy (wolfImg, screenWidth, screenHeight - 275, 150, 150, 2, 6000, 25);
@@ -110,6 +124,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 drawMenu(g);
                 break;
             case "Shop":
+                drawShop(g);
                 break;
             case "Game":
                 drawGame(g);
@@ -224,6 +239,60 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         
         g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
 
+    }
+
+    //Drawing shop method
+    public void drawShop(Graphics g) {
+        pi = MouseInfo.getPointerInfo();
+        p = pi.getLocation();
+        
+        g.drawImage(background[3], 0, 0, screenWidth, screenHeight, null);
+        g.setFont(titleFont);
+        g.setColor(shopButtonBlue);
+        g.fillRect(screenWidth / 15, screenHeight / 8 + 100, screenWidth / 4, screenHeight / 5);
+        g.fillRect(screenWidth / 15, screenHeight * 3 / 8 + 100, screenWidth / 4, screenHeight / 5);
+        g.fillRect(screenWidth / 15, screenHeight * 5 / 8 + 100, screenWidth / 4, screenHeight / 5);
+        g.fillRect(screenWidth * 6 / 15, screenHeight / 8 + 100, screenWidth / 4, screenHeight / 5);
+        g.fillRect(screenWidth * 6 / 15, screenHeight * 3 / 8 + 100, screenWidth / 4, screenHeight / 5);
+
+        g.drawImage(items[0], screenWidth / 15 + 30, screenHeight / 8 + 130, 150, 150, null);
+        g.drawImage(items[1], screenWidth / 15 + 30, screenHeight * 3 / 8 + 130, 150, 150, null);
+        g.drawImage(items[5], screenWidth / 15 + 30, screenHeight * 5 / 8 + 130, 150, 150, null);
+        g.drawImage(items[4], screenWidth * 6 / 15 + 30, screenHeight / 8 + 130, 150, 150, null);
+        g.drawImage(items[3], screenWidth * 6 / 15 + 30, screenHeight  * 3/ 8 + 130, 150, 150, null);
+
+        g.setColor(shopBlue);
+        g.drawString("Shop", screenWidth / 2 - 150, 100);
+        g.drawRect(screenWidth / 15 - 1, screenHeight / 8 + 99, screenWidth / 4 + 2, screenHeight / 5 + 2);
+        g.drawRect(screenWidth / 15, screenHeight / 8 + 100, screenWidth / 4, screenHeight / 5);
+        g.drawRect(screenWidth / 15 + 1, screenHeight / 8 + 101, screenWidth / 4 - 2, screenHeight / 5 - 2);
+
+        g.drawRect(screenWidth / 15 - 1, screenHeight * 3 / 8 + 99, screenWidth / 4 + 2, screenHeight / 5 + 2);
+        g.drawRect(screenWidth / 15, screenHeight * 3 / 8 + 100, screenWidth / 4, screenHeight / 5);
+        g.drawRect(screenWidth / 15 + 1, screenHeight * 3 / 8 + 101, screenWidth / 4 - 2, screenHeight / 5 - 2);
+
+        g.drawRect(screenWidth / 15 - 1, screenHeight * 5 / 8 + 99, screenWidth / 4 + 2, screenHeight / 5 + 2);
+        g.drawRect(screenWidth / 15, screenHeight * 5 / 8 + 100, screenWidth / 4, screenHeight / 5);
+        g.drawRect(screenWidth / 15 + 1, screenHeight * 5 / 8 + 101, screenWidth / 4 - 2, screenHeight / 5 - 2);
+
+        g.drawRect(screenWidth * 6 / 15 - 1, screenHeight / 8 + 99, screenWidth / 4 + 2, screenHeight / 5 + 2);
+        g.drawRect(screenWidth * 6 / 15, screenHeight / 8 + 100, screenWidth / 4, screenHeight / 5);
+        g.drawRect(screenWidth * 6 / 15 + 1, screenHeight / 8 + 101, screenWidth / 4 - 2, screenHeight / 5 - 2);
+
+        g.drawRect(screenWidth * 6 / 15 - 1, screenHeight * 3 / 8 + 99, screenWidth / 4 + 2, screenHeight / 5 + 2);
+        g.drawRect(screenWidth * 6 / 15, screenHeight * 3 / 8 + 100, screenWidth / 4, screenHeight / 5);
+        g.drawRect(screenWidth * 6 / 15 + 1, screenHeight * 3 / 8 + 101, screenWidth / 4 - 2, screenHeight / 5 - 2);
+        
+        g.setColor(Color.BLACK);
+        g.setFont(shopButtonFont);
+        g.drawString("Increases Teemo's Health", screenWidth / 15 + 200, screenHeight / 8 + 200);
+        g.drawString("Increases Teemo's", screenWidth / 15 + 200, screenHeight * 3 / 8 + 200);
+        g.drawString("Jump Strength", screenWidth / 15 + 200, screenHeight * 3 / 8 + 225);
+        g.drawString("Boss Fight", screenWidth / 15 + 200, screenHeight * 5 / 8 + 200);
+        g.drawString("Increases Dart's Damage", screenWidth * 6 / 15 + 200, screenHeight / 8 + 200);
+        g.drawString("Increases Number of Darts", screenWidth * 6 / 15 + 200, screenHeight * 3 / 8 + 200);
+
+        g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
     }
 
     //Drawing the actual game method
@@ -486,6 +555,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         jumpStrength = screenHeight / 55;   
         score = 0;
         Enemy.bgscrollspeed = screenWidth / 300;
+        gromp.x = screenWidth;
+        wolf.x = screenWidth;
+        raptor1.x = screenWidth;
+        raptor2.x = screenWidth + 400;
+        raptor3.x = screenWidth + 800;
     }
 
     //Accept user input

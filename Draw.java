@@ -34,6 +34,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     private BufferedImage[] background = new BufferedImage[3];
     private BufferedImage grompImg;
     private BufferedImage wolfImg;
+    private BufferedImage greyFilter;
     private BufferedImage[] raptor = new BufferedImage[3];
     private BufferedImage teemoDart;
 
@@ -94,6 +95,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             raptor1 = new Enemy(raptor[0], screenWidth, screenHeight - 600, 100, 100, 2, 3000, 25);
             raptor2 = new Enemy(raptor[1], screenWidth + 400, screenHeight - 600, 100, 100, 2, 3000, 25);
             raptor3 = new Enemy(raptor[2], screenWidth + 800, screenHeight - 600, 100, 100, 2, 3000, 25);
+            greyFilter = ImageIO.read(getClass().getResourceAsStream("/Images/grey-filter.png"));
 
         } catch (IOException e) {
 
@@ -232,6 +234,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         //Background
         g.drawImage(background[bg1type], bg1x, 0, screenWidth, screenHeight, null);
         g.drawImage(background[bg2type], bg2x, 0, screenWidth, screenHeight, null);
+        g.drawImage(greyFilter, screenWidth + 200, screenHeight + 200, screenWidth, screenHeight, null);
 
         //Draws enemies and calculates collision
         level(g);
@@ -309,6 +312,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     public void drawGameOver (Graphics g) {
         Enemy.bgscrollspeed = 0;
         drawGame(g);
+
+        g.drawImage(greyFilter, 0, 0, screenWidth, screenHeight, null);
         g.setFont(gameoverButtonFont);
 
         g.setColor(buttonGreen);
@@ -364,9 +369,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     //Gets angle of dart and teemo
     public double getAngle() {
 
-        PointerInfo pi = MouseInfo.getPointerInfo();
-        Point p = pi.getLocation();
-
         double degs = Math.toDegrees(Math.atan((double)Math.abs(((double)screenHeight - (double)darty) - ((double)screenHeight - (double)p.getY())) / (double)Math.abs((double)p.getX() - (double)dartx)));
 
         return degs;
@@ -377,9 +379,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     public void rotateDart() {
 
         if (isDartMoving == false) {
-
-            PointerInfo pi = MouseInfo.getPointerInfo();
-            Point p = pi.getLocation();
 
             double locationX = teemoDart.getWidth() / 2;
             double locationY = teemoDart.getHeight() / 2;
@@ -409,11 +408,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
         if (isDartMoving == false) {
 
-            xPerFrame = (double)dartSpeed * Math.cos(Math.toRadians(getAngle()));
-            yPerFrame = (double)dartSpeed * Math.sin(Math.toRadians(getAngle()));
-
-            PointerInfo pi = MouseInfo.getPointerInfo();
-            Point p = pi.getLocation();
+            xPerFrame = dartSpeed * Math.cos(Math.toRadians(getAngle()));
+            yPerFrame = dartSpeed * Math.sin(Math.toRadians(getAngle()));
 
             if (p.getX() < teemox) {
 

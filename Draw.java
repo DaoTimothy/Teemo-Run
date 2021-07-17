@@ -32,10 +32,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     Font titleFont = new Font("Roboto", Font.BOLD, 100);
     Font buttonFont = new Font("Roboto", Font.PLAIN, 75);
     Font shopButtonFont = new Font ("Roboto", Font.PLAIN, 20);
-    Font gameoverButtonFont = new Font ("Roboto", Font.PLAIN, 50);
+    Font smallButtonFont = new Font ("Roboto", Font.PLAIN, 50);
     Font scoreFont = new Font("Roboto", Font.PLAIN, 50);
     Font healthFont = new Font("Roboto", Font.PLAIN, 25);
-    Font goldFont = new Font("Roboto", Font.PLAIN, 75);
+    Font gameOverFont = new Font ("Roboto", Font.PLAIN, 75);
+    Font goldFont = new Font("Courier New", Font.BOLD, 30);
+    Font shopPrice = new Font("Courier New", Font.PLAIN, 30);
     int score = 0;
     
     private BufferedImage crosshair;
@@ -52,7 +54,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
     int teemox = screenWidth / 3, teemoy = screenHeight - 250;
     int originalTeemoy = teemoy;
-    int teemoMaxHealth = 3;
+    int teemoMaxHealth = 1;
     int dartx = teemox, darty = teemoy, dartAngle = 0;
     double dartSpeed = 7.5;
     double xPerFrame = 0, yPerFrame = 0;
@@ -104,9 +106,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             teemoDart = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/teemoDart.png"));
             items[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/Warmogs.png"));
             items[1] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/Boots_of_Swiftness.png"));
-            items[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/Mobility_Boots.png"));
+            items[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/Noonquiver.png"));
             items[3] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/IE.png"));
-            items[4] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/Noonquiver.png"));
+            items[4] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/Mobility_Boots.png"));
             items[5] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/TP.png"));
             coin = ImageIO.read(getClass().getResourceAsStream("/Images/Poro Coin.png"));
 
@@ -210,38 +212,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     public void drawMenu(Graphics g) {
 
         g.drawImage(background[2], 0, 0, screenWidth, screenHeight, null);
-                
-        g.setFont(buttonFont);
-
-        g.setColor(buttonGreen);
-        g.fillRect(screenWidth / 2 - 400, screenHeight - 400, 300, 200);
-        g.fillRect(screenWidth / 2 + 100, screenHeight - 400, 300, 200);
-
-        int mouseX = (int)p.getX();
-        int mouseY = (int)p.getY();
-        if (mouseX > screenWidth / 2 - 400 && mouseX < screenWidth / 2 - 100 && mouseY > screenHeight - 400 && mouseY < screenHeight - 200) {
-            g.setColor(Color.WHITE);
-            g.drawString("Play", screenWidth / 2 - 325, screenHeight - 275);
-            g.setColor(Color.BLACK);
-            g.drawString("Shop", screenWidth / 2 + 160, screenHeight - 275);
-            if (mouseClicked) {
-                resetGame();
-                gameState = "Game";
-                mouseClicked = false;
-            }
-        } else if (mouseX > screenWidth / 2 + 100 && mouseX < screenWidth / 2 + 300 && mouseY > screenHeight - 400 && mouseY < screenHeight - 200) {
-            g.setColor(Color.BLACK);
-            g.drawString("Play", screenWidth / 2 - 325, screenHeight - 275);
-            g.setColor(Color.WHITE);
-            g.drawString("Shop", screenWidth / 2 + 160, screenHeight - 275);
-            if (mouseClicked) {
-                gameState = "Shop";
-                mouseClicked = false;
-            }
-        } else {
-            g.setColor(Color.BLACK);
-            g.drawString("Shop", screenWidth / 2 + 160, screenHeight - 275);
-            g.drawString("Play", screenWidth / 2 - 325, screenHeight - 275);
+        
+        drawMenuButton(g, screenWidth / 2 - 400, screenHeight - 400, 300, 200, buttonGreen, buttonFont, Color.BLACK, Color.WHITE, "Play", "Game", 75, 75);
+        drawMenuButton(g, screenWidth / 2 + 100, screenHeight - 400, 300, 200, buttonGreen, buttonFont, Color.BLACK, Color.WHITE, "Shop", "Shop", 60, 75);
+        if (gameState.equals("Game")) {
+            resetGame();
         }
         
         g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
@@ -252,53 +227,19 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     public void drawShop(Graphics g) {
         
         g.drawImage(background[3], 0, 0, screenWidth, screenHeight, null);
+
         g.setFont(titleFont);
-        g.setColor(shopButtonBlue);
-        g.fillRect(screenWidth / 15, screenHeight / 8 + 100, screenWidth / 4, screenHeight / 5);
-        g.fillRect(screenWidth / 15, screenHeight * 3 / 8 + 100, screenWidth / 4, screenHeight / 5);
-        g.fillRect(screenWidth / 15, screenHeight * 5 / 8 + 100, screenWidth / 4, screenHeight / 5);
-        g.fillRect(screenWidth * 6 / 15, screenHeight / 8 + 100, screenWidth / 4, screenHeight / 5);
-        g.fillRect(screenWidth * 6 / 15, screenHeight * 3 / 8 + 100, screenWidth / 4, screenHeight / 5);
-
-        g.drawImage(items[0], screenWidth / 15 + 30, screenHeight / 8 + 130, 150, 150, null);
-        g.drawImage(items[1], screenWidth / 15 + 30, screenHeight * 3 / 8 + 130, 150, 150, null);
-        g.drawImage(items[5], screenWidth / 15 + 30, screenHeight * 5 / 8 + 130, 150, 150, null);
-        g.drawImage(items[4], screenWidth * 6 / 15 + 30, screenHeight / 8 + 130, 150, 150, null);
-        g.drawImage(items[3], screenWidth * 6 / 15 + 30, screenHeight  * 3/ 8 + 130, 150, 150, null);
-
         g.setColor(shopBlue);
         g.drawString("Shop", screenWidth / 2 - 150, 100);
-        g.drawRect(screenWidth / 15 - 1, screenHeight / 8 + 99, screenWidth / 4 + 2, screenHeight / 5 + 2);
-        g.drawRect(screenWidth / 15, screenHeight / 8 + 100, screenWidth / 4, screenHeight / 5);
-        g.drawRect(screenWidth / 15 + 1, screenHeight / 8 + 101, screenWidth / 4 - 2, screenHeight / 5 - 2);
 
-        g.drawRect(screenWidth / 15 - 1, screenHeight * 3 / 8 + 99, screenWidth / 4 + 2, screenHeight / 5 + 2);
-        g.drawRect(screenWidth / 15, screenHeight * 3 / 8 + 100, screenWidth / 4, screenHeight / 5);
-        g.drawRect(screenWidth / 15 + 1, screenHeight * 3 / 8 + 101, screenWidth / 4 - 2, screenHeight / 5 - 2);
-
-        g.drawRect(screenWidth / 15 - 1, screenHeight * 5 / 8 + 99, screenWidth / 4 + 2, screenHeight / 5 + 2);
-        g.drawRect(screenWidth / 15, screenHeight * 5 / 8 + 100, screenWidth / 4, screenHeight / 5);
-        g.drawRect(screenWidth / 15 + 1, screenHeight * 5 / 8 + 101, screenWidth / 4 - 2, screenHeight / 5 - 2);
-
-        g.drawRect(screenWidth * 6 / 15 - 1, screenHeight / 8 + 99, screenWidth / 4 + 2, screenHeight / 5 + 2);
-        g.drawRect(screenWidth * 6 / 15, screenHeight / 8 + 100, screenWidth / 4, screenHeight / 5);
-        g.drawRect(screenWidth * 6 / 15 + 1, screenHeight / 8 + 101, screenWidth / 4 - 2, screenHeight / 5 - 2);
-
-        g.drawRect(screenWidth * 6 / 15 - 1, screenHeight * 3 / 8 + 99, screenWidth / 4 + 2, screenHeight / 5 + 2);
-        g.drawRect(screenWidth * 6 / 15, screenHeight * 3 / 8 + 100, screenWidth / 4, screenHeight / 5);
-        g.drawRect(screenWidth * 6 / 15 + 1, screenHeight * 3 / 8 + 101, screenWidth / 4 - 2, screenHeight / 5 - 2);
+        drawShopItem(g, items[0], screenWidth / 2 - 700, 250, 1000, "Increases Teemo's Health", 3);
+        drawShopItem(g, items[1], screenWidth / 2 - 700, 550, 500, "Increases Teemo's Jump Height", 3);
+        drawShopItem(g, items[2], screenWidth / 2 + 100, 250, 300, "Increases Number of Darts", 3);
+        drawShopItem(g, items[3], screenWidth / 2 + 100, 550, 200, "Increases Dart Damage", 3);
         
-        g.setColor(buttonGreen);
-        drawMenuButton(g, 1200, 750, 200, 75, buttonGreen, buttonGreen, buttonFont, Color.BLACK, Color.WHITE, "Menu", "Menu", -95, 25);
-
-        g.setColor(Color.BLACK);
-        g.setFont(shopButtonFont);
-        g.drawString("Increases Teemo's Health", screenWidth / 15 + 200, screenHeight / 8 + 200);
-        g.drawString("Increases Teemo's", screenWidth / 15 + 200, screenHeight * 3 / 8 + 200);
-        g.drawString("Jump Strength", screenWidth / 15 + 200, screenHeight * 3 / 8 + 225);
-        g.drawString("Boss Fight", screenWidth / 15 + 200, screenHeight * 5 / 8 + 200);
-        g.drawString("Increases Dart's Damage", screenWidth * 6 / 15 + 200, screenHeight / 8 + 200);
-        g.drawString("Increases Number of Darts", screenWidth * 6 / 15 + 200, screenHeight * 3 / 8 + 200);
+        
+        drawMenuButton(g, 100, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Menu", "Menu", 35, 30);
+        drawMenuButton(g, screenWidth - 300, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Play", "Game", 50, 30);
 
         g.setFont(goldFont);
         g.setColor(goldGold);
@@ -309,7 +250,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     //Draws functioning menu button
-    public void drawMenuButton(Graphics g, int x, int y, int width, int height, Color buttonColor, Color buttonHoverColor, Font font, Color textColor, Color textHoverColor, String text, String menu, int textCorrectionx, int textCorrectiony) {
+    public void drawMenuButton(Graphics g, int x, int y, int width, int height, Color buttonColor, Font font, Color textColor, Color textHoverColor, String text, String menu, int textCorrectionx, int textCorrectiony) {
 
         g.setColor(buttonColor);
         g.setFont(font);
@@ -319,18 +260,28 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         int mouseY = (int)p.getY();
         if (mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height) {
             g.setColor(textHoverColor);
-            g.drawString(text, x + width / 2 + textCorrectionx, y + height / 2 + textCorrectiony);
+            g.drawString(text, x + textCorrectionx, y + height - textCorrectiony);
             if (mouseClicked) {
                 gameState = menu;
                 mouseClicked = false;
             }
-            g.setColor(buttonHoverColor);
-            g.fillRect(x, y, width, height);
         } else {
             g.setColor(textColor);
-            g.drawString(text, x + width / 2 + textCorrectionx, y + height / 2 + textCorrectiony);
+            g.drawString(text, x + textCorrectionx, y + height - textCorrectiony);
         }
 
+    }
+
+    //Draws Shop items
+    public void drawShopItem(Graphics g, BufferedImage itemImg, int x, int y, int cost, String description, int currentLevel) {
+        g.setFont(shopButtonFont);
+        g.setColor(shopBlue);
+        g.fillRect(x, y, 600, 250);
+        g.drawImage(itemImg, x + 25, y + 25, 200, 200, null);
+        g.setColor(goldGold);
+        g.drawString(String.format("%10s", "" + cost + "g"), x + 300 , y + 50);
+        g.setColor(Color.BLACK);
+        g.drawString(description, x + 250, y + 100);
     }
 
     //Drawing the actual game method
@@ -385,16 +336,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         if (Enemy.teemoHealth <= 0) {
             gameState = "GameOver";
         }
-
-        //Gold
-        g.setFont(goldFont);
-        g.drawImage(coin, 25, 125, 100, 100, null);
-        g.drawString(String.valueOf(goldEarned), 125, 200);
-        if (score % 150 == 0) {
-            goldEarned ++;
-            totalGold ++;
-        }
-        
     }
 
     //Drawing health bar method
@@ -425,55 +366,17 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     public void drawGameOver(Graphics g) {
         Enemy.bgscrollspeed = 0;
         drawGame(g);
+        drawGoldCalc(g);
 
         g.drawImage(greyFilter, 0, 0, screenWidth, screenHeight, null);
-        g.setFont(gameoverButtonFont);
 
-        g.setColor(buttonGreen);
-        g.fillRect(100, screenHeight - 150, 200, 100);
-        g.fillRect(screenWidth - 600, screenHeight - 150, 200, 100);
-        g.fillRect(screenWidth - 300, screenHeight - 150, 200, 100);
-
-        int mouseX = (int)p.getX();
-        int mouseY = (int)p.getY();
-        if (mouseX > screenWidth - 600 && mouseX < screenWidth - 400 && mouseY > screenHeight - 150 && mouseY < screenHeight - 50) {
-            g.setColor(Color.WHITE);
-            g.drawString("Play", screenWidth - 550, screenHeight - 80);
-            g.setColor(Color.BLACK);
-            g.drawString("Shop", screenWidth - 250, screenHeight - 80);
-            g.drawString("Menu", 135, screenHeight - 80);
-            if (mouseClicked) {
-                resetGame();
-                gameState = "Game";
-                mouseClicked = false;
-            }
-        } else if (mouseX > screenWidth - 300 && mouseX < screenWidth - 100 && mouseY > screenHeight - 150 && mouseY < screenHeight - 50) {
-            g.setColor(Color.BLACK);
-            g.drawString("Play", screenWidth - 550, screenHeight - 80);
-            g.drawString("Menu", 135, screenHeight - 80);
-            g.setColor(Color.WHITE);
-            g.drawString("Shop", screenWidth - 250, screenHeight - 80);
-            if (mouseClicked) {
-                gameState = "Shop";
-                mouseClicked = false;
-            }
-        } else if (mouseX > 100 && mouseX < 300 && mouseY > screenHeight - 150 && mouseY < screenHeight - 50) {
-            g.setColor(Color.BLACK);
-            g.drawString("Play", screenWidth - 550, screenHeight - 80);
-            g.drawString("Shop", screenWidth - 250, screenHeight - 80);
-            g.setColor(Color.WHITE);
-            g.drawString("Menu", 135, screenHeight - 80);
-            if (mouseClicked) {
-                gameState = "Menu";
-                mouseClicked = false;
-            }
-        } else {
-            g.setColor(Color.BLACK);
-            g.drawString("Shop", screenWidth - 250, screenHeight - 80);
-            g.drawString("Play", screenWidth - 550, screenHeight - 80);
-            g.drawString("Menu", 135, screenHeight - 80);
+        drawMenuButton(g, screenWidth - 600, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Play", "Game", 50, 30);
+        drawMenuButton(g, screenWidth - 300, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Shop", "Shop", 45, 30);
+        drawMenuButton(g, 100, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Menu", "Menu", 35, 30);
+        if (gameState.equals("Game")) {
+            resetGame();
         }
-        
+
         g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
     }
     
@@ -557,6 +460,31 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     
         }
     
+    }
+
+    //Calculates gold after Teemo's death
+    public void drawGoldCalc(Graphics g) {
+        
+        g.setFont(gameOverFont);
+
+        g.setColor(Color.WHITE);
+        g.fillRect(screenWidth / 2 - 250, 200, 500, 600);
+
+        g.setColor(Color.BLACK);
+        g.drawRect(screenWidth / 2 - 250, 200, 500, 600);
+        g.drawString("Game Over", screenWidth / 2 - 190, 275);
+
+        g.setFont(goldFont);
+        if (goldEarned == 0) {
+            goldEarned = (int) score / 150; //+ grompsKilled * 50 + wolvesKilled * 25 + raptorsKilled * 10;
+            totalGold += goldEarned;
+        }
+        g.drawString(String.format("Score: %-10s%8s", "" + score + "...", "..." + (int) score / 150 + "g"), screenWidth / 2 - 225, 350);
+        //g.drawString(String.format("Gromps: %-9s%8s", "" + grompsKilled + "...", "..." + (int) grompsKilled * 50 + "g"), screenWidth / 2 - 225, 400);
+        //g.drawString(String.format("Wolves: %-9s%8s", "" + wolvesKilled + "...", "..." + (int) wolvesKilled / 25 + "g"), screenWidth / 2 - 225, 450);
+        //g.drawString(String.format("Raptors: %-8s%8s", "" + raptorsKilled + "...", "..." + (int) raptorsKilled / 10 + "g"), screenWidth / 2 - 225, 500);
+        g.drawString(String.format("%25s", "Total: " + goldEarned + "g"), screenWidth / 2 - 225, 750);
+        
     }
 
     //Determines difficulty based of how long player survives

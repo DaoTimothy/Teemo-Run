@@ -232,10 +232,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.setColor(shopBlue);
         g.drawString("Shop", screenWidth / 2 - 150, 100);
 
-        drawShopItem(g, items[0], screenWidth / 2 - 700, 250, 1000, "Increases Teemo's Health", 3);
-        drawShopItem(g, items[1], screenWidth / 2 - 700, 550, 500, "Increases Teemo's Jump Height", 3);
-        drawShopItem(g, items[2], screenWidth / 2 + 100, 250, 300, "Increases Number of Darts", 3);
-        drawShopItem(g, items[3], screenWidth / 2 + 100, 550, 200, "Increases Dart Damage", 3);
+        drawShopItem(g, items[0], screenWidth / 2 - 700, screenHeight / 4, 1000, "Increases Teemo's Health", 3, "Warmogs");
+        drawShopItem(g, items[1], screenWidth / 2 - 700, screenHeight / 2, 500, "Increases Teemo's Jump Height", 3, "Boots");
+        drawShopItem(g, items[2], screenWidth / 2 + 100, screenHeight / 4, 300, "Increases Number of Darts", 3, "Noonquiver");
+        drawShopItem(g, items[3], screenWidth / 2 + 100, screenHeight / 2, 200, "Increases Dart Damage", 3, "IE");
         
         
         drawMenuButton(g, 100, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Menu", "Menu", 35, 30);
@@ -272,16 +272,40 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
     }
 
+    public void drawShopButton(Graphics g, int x, int y, int width, int height, Color buttonColor, Font font, Color textColor, Color textHoverColor, String text, String item, int textCorrectionx, int textCorrectiony) {
+
+        g.setColor(buttonColor);
+        g.setFont(font);
+        g.fillRect(x, y, width, height);
+
+        int mouseX = (int)p.getX();
+        int mouseY = (int)p.getY();
+        if (mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height) {
+            g.setColor(textHoverColor);
+            g.drawString(text, x + textCorrectionx, y + height - textCorrectiony);
+            if (mouseClicked) {
+                //Buy item
+                mouseClicked = false;
+            }
+        } else {
+            g.setColor(textColor);
+            g.drawString(text, x + textCorrectionx, y + height - textCorrectiony);
+        }
+
+    }
+
     //Draws Shop items
-    public void drawShopItem(Graphics g, BufferedImage itemImg, int x, int y, int cost, String description, int currentLevel) {
+    public void drawShopItem(Graphics g, BufferedImage itemImg, int x, int y, int cost, String description, int currentLevel, String item) {
         g.setFont(shopButtonFont);
         g.setColor(shopBlue);
-        g.fillRect(x, y, 600, 250);
-        g.drawImage(itemImg, x + 25, y + 25, 200, 200, null);
+        g.fillRect(x, y, 600, screenHeight / 5);
+        g.drawImage(itemImg, x + 25, y + 25, 150, 150, null);
         g.setColor(goldGold);
-        g.drawString(String.format("%10s", "" + cost + "g"), x + 300 , y + 50);
+        g.drawString(String.format("%17s", "" + cost + "g"), x + 450 , y + 25);
         g.setColor(Color.BLACK);
         g.drawString(description, x + 250, y + 100);
+        g.drawString(String.format("Current Level: %d", currentLevel), x + 250, y + screenHeight / 5 - 50);
+        drawShopButton(g, x + 500, y + screenHeight / 5 - 75, 75, 50, Color.GREEN, healthFont, Color.BLACK, Color.WHITE, "Buy", item, 15, 15);
     }
 
     //Drawing the actual game method

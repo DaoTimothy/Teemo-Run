@@ -29,6 +29,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     Color shopBlue = new Color (51, 153, 255);
     Color shopButtonBlue = new Color (51, 102, 153);
     Color goldGold = new Color (252, 186, 3);
+    Color grey = new Color (107, 107, 107);
     Font titleFont = new Font("Roboto", Font.BOLD, 100);
     Font buttonFont = new Font("Roboto", Font.PLAIN, 75);
     Font shopButtonFont = new Font ("Roboto", Font.PLAIN, 20);
@@ -201,15 +202,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 }
 
                 //Dart
-                if (Enemy.isDartMoving == false) {
-
-                    Enemy.darty = teemoy;
-                    Enemy.dartx = teemox;
-
-                }
-                getDartMovement();
-                moveDart();
-                resetDart();
+                dart();
 
                 break;
         }
@@ -246,8 +239,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         drawShopItem(g, boots, screenWidth / 2 - 700, screenHeight / 2);
         drawShopItem(g, noonquiver, screenWidth / 2 + 100, screenHeight / 4);
         drawShopItem(g, IE, screenWidth / 2 + 100, screenHeight / 2);
-        
-        
+    
+        drawItemLevels(g, screenWidth / 2 - 525, screenHeight - 530, warmogs.maxLevel, warmogs.level);
+        drawItemLevels(g, screenWidth / 2 - 525, screenHeight - 320, boots.maxLevel, boots.level);
+        drawItemLevels(g, screenWidth / 2 + 275, screenHeight - 530, noonquiver.maxLevel, noonquiver.level);
+        drawItemLevels(g, screenWidth / 2 + 275, screenHeight - 320, IE.maxLevel, IE.level);
+    
         drawMenuButton(g, 100, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Menu", "Menu", 35, 30);
         drawMenuButton(g, screenWidth - 300, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Play", "Game", 50, 30);
         if (gameState.equals("Game")) {
@@ -260,6 +257,39 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.drawString(String.valueOf(totalGold), 200, 125);
 
         g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
+
+
+    }
+
+    //Draws item levels
+    public void drawItemLevels(Graphics g, int x, int y, int maxLevel, int currentLevel) {
+
+        if (maxLevel == 1) {
+
+            g.fillRect(x, y, 300 / maxLevel, 25);
+
+        } else {
+
+            int barWidth = 300 / ((maxLevel * 2) - 1);
+
+            for (int i = 0; i < maxLevel; i++) {
+
+                g.setColor(grey);
+                g.fillRect(x + (i * barWidth * 2), y, barWidth, 25);
+
+            }
+
+            for (int i = 0; i < currentLevel; i++) {
+
+                g.setColor(goldGold);
+                g.fillRect(x + (i * barWidth * 2), y, barWidth, 25);
+
+            }
+
+        }
+
+
+
     }
 
     //Draws functioning menu button
@@ -314,12 +344,15 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.setFont(shopButtonFont);
         g.setColor(shopBlue);
         g.fillRect(x, y, 600, screenHeight / 5);
-        g.drawImage(item.itemImage, x + 25, y + 25, 150, 150, null);
+        g.drawImage(item.itemImage, x + 25, (y + (screenHeight / 5) / 2) - (screenHeight / 10 - 25), screenHeight / 5 - 50, screenHeight / 5 - 50, null);
         g.setColor(goldGold);
-        g.drawString(String.format("%17s", "" + item.price + "g"), x + 450 , y + 25);
+        if (item.level < item.maxLevel) {
+            g.drawString(String.format("%17s", "" + item.price + "g"), x + 450 , y + 25);
+        } else {
+            g.drawString(String.format("Sold Out!"), x + 500 , y + 25);
+        }
         g.setColor(Color.BLACK);
-        g.drawString(item.description, x + 250, y + 100);
-        g.drawString(String.format("Current Level: %d", item.level), x + 250, y + screenHeight / 5 - 50);
+        g.drawString(item.description, x + 220, y + 50);
         drawShopButton(g, x + 500, y + screenHeight / 5 - 75, 75, 50, Color.GREEN, healthFont, Color.BLACK, Color.WHITE, "Buy", item, 15, 15);
     }
 
@@ -354,9 +387,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         } 
 
         //Dart
-        if (Enemy.teemoHealth > 0) {
-            rotateDart();
-        }
         g.drawImage(op.filter(teemoDart, null), Enemy.dartx, Enemy.darty, null);
 
         //Crosshair
@@ -409,7 +439,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
         g.drawImage(greyFilter, 0, 0, screenWidth, screenHeight, null);
 
-        drawMenuButton(g, screenWidth - 600, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Play", "Game", 50, 30);
+        drawMenuButton(g, screenWidth - 300, screenHeight - 350, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Play", "Game", 50, 30);
         drawMenuButton(g, screenWidth - 300, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Shop", "Shop", 45, 30);
         drawMenuButton(g, 100, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Menu", "Menu", 35, 30);
         if (gameState.equals("Game")) {
@@ -418,51 +448,26 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
         g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
     }
-    
-    //Gets angle of dart and teemo
-    public double getAngle() {
 
-        double degs = Math.toDegrees(Math.atan((double)Math.abs(((double)screenHeight - (double)Enemy.darty) - ((double)screenHeight - (double)p.getY())) / (double)Math.abs((double)p.getX() - (double)Enemy.dartx)));
+    //All dart stuff
+    public void dart() {
 
-        return degs;
-
-    }
-
-    //Rotates dart
-    public void rotateDart() {
-
+        //Makes dart follow teemo
         if (Enemy.isDartMoving == false) {
 
-            double locationX = teemoDart.getWidth() / 2;
-            double locationY = teemoDart.getHeight() / 2;
-
-            if (p.getX() > teemox) {
-                rotationRequired = Math.toRadians (-getAngle());
-            } else if (p.getX() <= teemox) {
-                rotationRequired = Math.toRadians (getAngle() - 180);
-            }
-            if (p.getY() >= teemoy) {
-                if (p.getX() >= teemox) {
-                    rotationRequired = Math.toRadians(getAngle());
-                } else {
-                    rotationRequired = Math.toRadians(-getAngle() + 180);
-                }
-            }
-
-            AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
-            op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+            Enemy.darty = teemoy;
+            Enemy.dartx = teemox;
 
         }
 
-    }
+        //Gets angle
+        double degs = Math.toDegrees(Math.atan((double)Math.abs(((double)screenHeight - (double)Enemy.darty) - ((double)screenHeight - (double)p.getY())) / (double)Math.abs((double)p.getX() - (double)Enemy.dartx)));
 
-    //Gets the amount of x and y the dart is going to move by
-    public void getDartMovement() {
-
+        //Gets dart movement amount
         if (Enemy.isDartMoving == false) {
 
-            xPerFrame = dartSpeed * Math.cos(Math.toRadians(getAngle()));
-            yPerFrame = dartSpeed * Math.sin(Math.toRadians(getAngle()));
+            xPerFrame = dartSpeed * Math.cos(Math.toRadians(degs));
+            yPerFrame = dartSpeed * Math.sin(Math.toRadians(degs));
 
             if (p.getX() < teemox) {
 
@@ -476,29 +481,46 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
         }
 
-    }
-
-    //Moves the dart
-    public void moveDart() {
-
+        //Moves dart
         if (Enemy.isDartMoving == true) {
 
             Enemy.dartx += xPerFrame;
             Enemy.darty -= yPerFrame;
 
+        }   
+        
+        //Rotates dart
+        if (Enemy.isDartMoving == false) {
+
+            double locationX = teemoDart.getWidth() / 2;
+            double locationY = teemoDart.getHeight() / 2;
+
+            if (p.getX() > teemox) {
+                rotationRequired = Math.toRadians (-degs);
+            } else if (p.getX() <= teemox) {
+                rotationRequired = Math.toRadians (degs - 180);
+            }
+            if (p.getY() >= teemoy) {
+                if (p.getX() >= teemox) {
+                    rotationRequired = Math.toRadians(degs);
+                } else {
+                    rotationRequired = Math.toRadians(-degs + 180);
+                }
+            }
+
+            AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
+            op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+
         }
 
-    }
-
-    //Resets dart when hit border
-    public void resetDart() {
-
+        //Resets dart
         if (Enemy.dartx > screenWidth + 50 || Enemy.dartx < -50 || Enemy.darty > screenHeight + 50 || Enemy.darty < -50) {
     
             Enemy.isDartMoving = false;
     
         }
-    
+
+
     }
 
     //Calculates gold after Teemo's death
@@ -540,7 +562,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             raptor2.behavior(g, teemox, teemoy);
             raptor3.behavior(g, teemox, teemoy);
         }
-        if (score % 100 == 0) {
+        if (score % 5000 == 0) {
             Enemy.bgscrollspeed *= 1.25 ;
         }
     }
@@ -572,7 +594,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     public void itemFunctionality() {
-        teemoMaxHealth = warmogs.level;
+        teemoMaxHealth = warmogs.level + 1;
         /* for (int i = 1; i < boots.level; i++) {
             jumpStrength += jumpStrength;
         } */

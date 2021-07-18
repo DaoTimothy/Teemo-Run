@@ -13,13 +13,13 @@ public class Item {
         itemImage = img;
         itemName = name;
         description = desc;
-        level = 1;
+        level = 0;
         this.maxLevel = maxLevel;
         this.price = price;
         this.priceChange = priceChange;
     }
 
-    public void upgrade () {
+    public void upgrade() {
         level++;
         price += priceChange;
     }

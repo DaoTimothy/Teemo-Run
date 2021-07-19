@@ -9,6 +9,9 @@ public class Enemy {
     static int dartDamage = 1;
     static int dartx;
     static int darty;
+    static int grompsKilled = 0;
+    static int wolvesKilled = 0;
+    static int raptorsKilled = 0;
 
     int maxHealth;
     int health;
@@ -72,10 +75,21 @@ public class Enemy {
                 int botSide = y + eHeight - hitboxCorrection;
                 if (darty + dartHeight >= topSide && darty <= topSide || darty <= botSide && darty + dartHeight >= botSide || darty >= topSide && darty + dartHeight <= botSide) {
                     health -= dartDamage;
-                    dartx = teemox;
-                    darty = teemoy;
+                    dartx = teemox + 25;
+                    darty = teemoy + 40;
                     isDartMoving = false;
                     if (health <= 0) {
+                        switch(maxHealth) {
+                            case 10:
+                                grompsKilled++;
+                                break;
+                            case 5: 
+                                wolvesKilled++;
+                                break;
+                            case 1: 
+                                raptorsKilled++;
+                                break;
+                        }
                         x = -200;
                         health = maxHealth;
                     }

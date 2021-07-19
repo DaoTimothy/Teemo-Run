@@ -195,7 +195,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                     teemoy -= jumpStrength;
                     jumpStrength -= weight;
                     if (teemoy - jumpStrength >= screenHeight - 250) {
-                        jumpStrength = screenHeight / 55;
+                        jumpStrength = screenHeight / 55 / 1.5F;
+                        for (int i = 1; i < boots.level; i++) {
+                            jumpStrength += screenHeight / 55 / 1.5F / 8;
+                        }
                         teemoy = screenHeight - 250;
                         jumping = false;
                     }
@@ -240,10 +243,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         drawShopItem(g, noonquiver, screenWidth / 2 + 100, screenHeight / 4);
         drawShopItem(g, IE, screenWidth / 2 + 100, screenHeight / 2);
     
-        drawItemLevels(g, screenWidth / 2 - 525, screenHeight - 530, warmogs.maxLevel, warmogs.level);
-        drawItemLevels(g, screenWidth / 2 - 525, screenHeight - 320, boots.maxLevel, boots.level);
-        drawItemLevels(g, screenWidth / 2 + 275, screenHeight - 530, noonquiver.maxLevel, noonquiver.level);
-        drawItemLevels(g, screenWidth / 2 + 275, screenHeight - 320, IE.maxLevel, IE.level);
+        drawItemLevels(g, screenWidth / 2 - 475, screenHeight / 4 + 80, warmogs.maxLevel, warmogs.level);
+        drawItemLevels(g, screenWidth / 2 - 475, screenHeight / 2 + 80, boots.maxLevel, boots.level);
+        drawItemLevels(g, screenWidth / 2 + 325, screenHeight / 4 + 80, noonquiver.maxLevel, noonquiver.level);
+        drawItemLevels(g, screenWidth / 2 + 325, screenHeight / 2 + 80, IE.maxLevel, IE.level);
     
         drawMenuButton(g, 100, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Menu", "Menu", 35, 30);
         drawMenuButton(g, screenWidth - 300, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Play", "Game", 50, 30);
@@ -272,14 +275,14 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
             int barWidth = 300 / ((maxLevel * 2) - 1);
 
-            for (int i = 0; i < maxLevel; i++) {
+            for (int i = 1; i < maxLevel; i++) {
 
                 g.setColor(grey);
                 g.fillRect(x + (i * barWidth * 2), y, barWidth, 25);
 
             }
 
-            for (int i = 0; i < currentLevel; i++) {
+            for (int i = 0; i <= currentLevel; i++) {
 
                 g.setColor(goldGold);
                 g.fillRect(x + (i * barWidth * 2), y, barWidth, 25);
@@ -326,7 +329,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         if (mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height) {
             g.setColor(textHoverColor);
             g.drawString(text, x + textCorrectionx, y + height - textCorrectiony);
-            if (mouseClicked && totalGold >= item.price && item.level < item.maxLevel) {
+            if (mouseClicked && totalGold >= item.price && item.level < item.maxLevel - 1) {
                 //Buy item
                 totalGold -= item.price;
                 item.upgrade();                
@@ -346,7 +349,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.fillRect(x, y, 600, screenHeight / 5);
         g.drawImage(item.itemImage, x + 25, (y + (screenHeight / 5) / 2) - (screenHeight / 10 - 25), screenHeight / 5 - 50, screenHeight / 5 - 50, null);
         g.setColor(goldGold);
-        if (item.level < item.maxLevel) {
+        if (item.level < item.maxLevel - 1) {
             g.drawString(String.format("%17s", "" + item.price + "g"), x + 450 , y + 25);
         } else {
             g.drawString(String.format("Sold Out!"), x + 500 , y + 25);
@@ -455,8 +458,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         //Makes dart follow teemo
         if (Enemy.isDartMoving == false) {
 
-            Enemy.darty = teemoy;
-            Enemy.dartx = teemox;
+            Enemy.darty = teemoy + 40;
+            Enemy.dartx = teemox + 25;
 
         }
 
@@ -471,7 +474,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
             if (p.getX() < teemox) {
 
-                xPerFrame = -xPerFrame;
+                xPerFrame = -xPerFrame - Enemy.bgscrollspeed;
             }
             if (p.getY() > teemoy) {
 
@@ -537,15 +540,14 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
         g.setFont(goldFont);
         if (goldEarned == 0) {
-            goldEarned = (int) score / 1; //+ grompsKilled * 50 + wolvesKilled * 25 + raptorsKilled * 10;
+            goldEarned = (int) score / 150 + Enemy.grompsKilled * 50 + Enemy.wolvesKilled * 25 + Enemy.raptorsKilled * 10;
             totalGold += goldEarned;
         }
         g.drawString(String.format("Score: %-10s%8s", "" + score + "...", "..." + (int) score / 150 + "g"), screenWidth / 2 - 225, 350);
-        //g.drawString(String.format("Gromps: %-9s%8s", "" + grompsKilled + "...", "..." + (int) grompsKilled * 50 + "g"), screenWidth / 2 - 225, 400);
-        //g.drawString(String.format("Wolves: %-9s%8s", "" + wolvesKilled + "...", "..." + (int) wolvesKilled / 25 + "g"), screenWidth / 2 - 225, 450);
-        //g.drawString(String.format("Raptors: %-8s%8s", "" + raptorsKilled + "...", "..." + (int) raptorsKilled / 10 + "g"), screenWidth / 2 - 225, 500);
+        g.drawString(String.format("Gromps: %-9s%8s", "" + Enemy.grompsKilled + "...", "..." + (int) Enemy.grompsKilled * 50 + "g"), screenWidth / 2 - 225, 400);
+        g.drawString(String.format("Wolves: %-9s%8s", "" + Enemy.wolvesKilled + "...", "..." + (int) Enemy.wolvesKilled * 25 + "g"), screenWidth / 2 - 225, 450);
+        g.drawString(String.format("Raptors: %-8s%8s", "" + Enemy.raptorsKilled + "...", "..." + (int) Enemy.raptorsKilled * 10 + "g"), screenWidth / 2 - 225, 500);
         g.drawString(String.format("%25s", "Total: " + goldEarned + "g"), screenWidth / 2 - 225, 750);
-        
     }
 
     //Determines difficulty based of how long player survives
@@ -557,12 +559,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         if (score >= 1000) {
             wolf.behavior(g, teemox, teemoy);
         }
-        if (score >= 3000) {
+        if (score >= 2000) {
             raptor1.behavior(g, teemox, teemoy);
             raptor2.behavior(g, teemox, teemoy);
             raptor3.behavior(g, teemox, teemoy);
         }
-        if (score % 5000 == 0) {
+        if (score % 2500 == 0) {
             Enemy.bgscrollspeed *= 1.25 ;
         }
     }
@@ -578,7 +580,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         upUnPressed = false;
         jumping = false;
         isCrouch = false; 
-        jumpStrength = screenHeight / 55;   
+        jumpStrength = screenHeight / 55 / 1.5F;   
         score = 0;
         Enemy.bgscrollspeed = screenWidth / 300;
         gromp.x = screenWidth;
@@ -591,22 +593,28 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         Enemy.darty = teemoy;
         itemFunctionality();
         Enemy.teemoHealth = teemoMaxHealth;
+        gromp.health = gromp.maxHealth;
+        wolf.health = wolf.maxHealth;
+        raptor1.health = raptor1.maxHealth;
+        raptor2.health = raptor2.maxHealth;
+        raptor3.health = raptor3.maxHealth;
+        Enemy.grompsKilled = 0;
+        Enemy.wolvesKilled = 0;
+        Enemy.raptorsKilled = 0;
+        Enemy.isDartMoving = false;
     }
 
     public void itemFunctionality() {
         teemoMaxHealth = warmogs.level + 1;
-        /* for (int i = 1; i < boots.level; i++) {
-            jumpStrength += jumpStrength;
-        } */
+        for (int i = 1; i < boots.level; i++) {
+            jumpStrength += screenHeight / 55 / 1.5F / 8;
+        }
         /*
         for (int i = 1; i < noonquiver.level; i++) {
             numDarts+=;
         }
-
-        for (int i = 1; i < IE.level; i++) {
-            dartDamage++;
-        }
         */
+        Enemy.dartDamage = IE.level + 1;
     }
 
     //Accept user input

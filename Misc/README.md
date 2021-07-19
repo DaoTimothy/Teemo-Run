@@ -1,7 +1,6 @@
 # Game
 To Do
-Dart Collision + Monster Damage
-Monster Kills 
+Fix the dart image
+Noonquiver functionality
 Save File
 Music
-Boots Functionality

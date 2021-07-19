@@ -111,6 +111,5 @@ public class Enemy {
         movement();
         collision(teemox, teemoy);
         dartCollision(teemox, teemoy);
-        g.drawImage(sprite, x, y, eWidth, eHeight, null);
     }
 }

@@ -92,6 +92,14 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
     boolean saveInitalized = false;
     File[] file = new File[3];
+
+    Music gameMusic;
+    boolean gameMusicPlaying = false;
+    String gameMusicPath;
+
+    Music menuMusic; 
+    boolean menuMusicPlaying = false;
+    String menuMusicPath;
     
 
     public Draw() {
@@ -138,6 +146,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
             greyFilter = ImageIO.read(getClass().getResourceAsStream("/Images/grey-filter.png"));
 
+            gameMusic = new Music();
+            gameMusicPath = "Sounds/teemo_run_track.wav";
+
+            menuMusic = new Music();
+            menuMusicPath = "Sounds/teemo_run_track.wav";
+
         } catch (IOException e) {
 
             e.printStackTrace();    
@@ -153,18 +167,40 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         }
         switch (gameState) {
             case "Menu":
+                if (!menuMusicPlaying) {
+                    menuMusic.setFile(menuMusicPath);
+                    menuMusic.play();
+                    menuMusic.loop();
+                    menuMusicPlaying = true;
+                }
                 drawMenu(g);
                 break;
             case "Shop":
+                if (!menuMusicPlaying) {
+                    menuMusic.setFile(menuMusicPath);
+                    menuMusic.play();
+                    menuMusic.loop();
+                    menuMusicPlaying = true;
+                }
                 drawShop(g);
                 break;
             case "Save":
                 drawSaveGame(g);
                 break;
             case "Game":
+                menuMusic.stop();
+                menuMusicPlaying = false;
+                if (!gameMusicPlaying) {
+                    gameMusic.setFile(gameMusicPath);
+                    gameMusic.play();
+                    gameMusic.loop();
+                    gameMusicPlaying = true;
+                }
                 drawGame(g);
                 break;
             case "GameOver":
+                gameMusic.stop();
+                gameMusicPlaying = false;
                 drawGameOver(g);
                 break;
         }

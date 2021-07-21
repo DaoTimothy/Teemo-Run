@@ -5,7 +5,6 @@ import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.imageio.ImageIO;
 import java.awt.image.*;
-import java.awt.geom.AffineTransform;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -72,6 +71,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     Enemy wolf;
     Enemy raptor;
 
+    Dart dart;
+
     Item warmogs;
     Item boots;
     Item noonquiver;
@@ -124,14 +125,16 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             coin = ImageIO.read(getClass().getResourceAsStream("/Images/Poro Coin.png"));
 
             settings = new Enemy (teemoMaxHealth, screenWidth, screenWidth / 300);
-            gromp = new Enemy (grompImg, 10, screenWidth, screenHeight - 325, 200, 200, 1, 2000, 40);
-            wolf = new Enemy (wolfImg, 5, screenWidth, screenHeight - 275, 150, 150, 2, 6000, 25);
-            raptor = new Enemy(raptorImg[0], 1, screenWidth, screenHeight - 500, 100, 100, 1.75, 4000, 25);
+            gromp = new Enemy (10, screenWidth, screenHeight - 325, 200, 200, 1, 2000, 40);
+            wolf = new Enemy (5, screenWidth, screenHeight - 275, 150, 150, 2, 6000, 25);
+            raptor = new Enemy(1, screenWidth, screenHeight - 500, 100, 100, 1.75, 4000, 25);
 
-            warmogs = new Item (items[0], "Warmogs", "Increases Teemo's Health", 5, 500, 1000);
-            boots = new Item (items[1], "Boots", "Increases Teemo's Jump Height", 8, 100, 200);
-            noonquiver = new Item (items[2], "Noonquiver", "Increases Number of Darts", 3, 1000, 2000);
-            IE = new Item (items[3], "Infinity Edge", "Increases Dart Damage", 5, 300, 500);
+            dart = new Dart(teemox, teemoy);
+
+            warmogs = new Item (items[0], "Warmogs", "Increases Teemo's Health", 4, 500, 1000);
+            boots = new Item (items[1], "Boots", "Increases Teemo's Jump Height", 7, 100, 200);
+            noonquiver = new Item (items[2], "Noonquiver", "Increases Number of Darts", 2, 1000, 2000);
+            IE = new Item (items[3], "Infinity Edge", "Increases Dart Damage", 4, 300, 500);
 
             greyFilter = ImageIO.read(getClass().getResourceAsStream("/Images/grey-filter.png"));
 
@@ -215,7 +218,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 }
 
                 //Dart
-                dart();
+                //dart();
 
                 break;
         }
@@ -285,14 +288,14 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
             int barWidth = 300 / ((maxLevel * 2) - 1);
 
-            for (int i = 1; i < maxLevel; i++) {
+            for (int i = 0; i < maxLevel; i++) {
 
                 g.setColor(grey);
                 g.fillRect(x + (i * barWidth * 2), y, barWidth, 25);
 
             }
 
-            for (int i = 0; i <= currentLevel; i++) {
+            for (int i = 0; i < currentLevel; i++) {
 
                 g.setColor(goldGold);
                 g.fillRect(x + (i * barWidth * 2), y, barWidth, 25);
@@ -515,7 +518,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         } 
 
         //Dart
-        g.drawImage(op.filter(teemoDart, null), Enemy.dartx, Enemy.darty, null);
+        if (Dart.isDartMoving == true) {
+            g.drawImage(dart.op.filter(teemoDart, null), (int)dart.x, (int)dart.y, null);
+        } else {
+            g.drawImage(teemoDart, (int)dart.x, (int)dart.y, null);
+        }
 
         //Crosshair
         g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
@@ -562,6 +569,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     //Draws game over screen
     public void drawGameOver(Graphics g) {
 
+        Dart.isDartMoving = false;
+
         if (score > highscore) {
 
             highscore = score;
@@ -582,79 +591,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         }
 
         g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
-    }
-
-    //All dart stuff
-    public void dart() {
-
-        //Makes dart follow teemo
-        if (Enemy.isDartMoving == false) {
-
-            Enemy.darty = teemoy + 40;
-            Enemy.dartx = teemox + 25;
-
-        }
-
-        //Gets angle
-        double degs = Math.toDegrees(Math.atan((double)Math.abs(((double)screenHeight - (double)Enemy.darty) - ((double)screenHeight - (double)p.getY())) / (double)Math.abs((double)p.getX() - (double)Enemy.dartx)));
-
-        //Gets dart movement amount
-        if (Enemy.isDartMoving == false) {
-
-            xPerFrame = dartSpeed * Math.cos(Math.toRadians(degs));
-            yPerFrame = dartSpeed * Math.sin(Math.toRadians(degs));
-
-            if (p.getX() < teemox) {
-
-                xPerFrame = -xPerFrame;
-            }
-            if (p.getY() > teemoy) {
-
-                yPerFrame = -yPerFrame;
-
-            }
-
-        }
-
-        //Moves dart
-        if (Enemy.isDartMoving == true) {
-
-            Enemy.dartx += xPerFrame;
-            Enemy.darty -= yPerFrame;
-
-        }   
-        
-        //Rotates dart
-        if (Enemy.isDartMoving == false) {
-
-            double locationX = teemoDart.getWidth() / 2;
-            double locationY = teemoDart.getHeight() / 2;
-
-            if (p.getX() > teemox) {
-                rotationRequired = Math.toRadians (-degs);
-            } else if (p.getX() <= teemox) {
-                rotationRequired = Math.toRadians (degs - 180);
-            }
-            if (p.getY() >= teemoy) {
-                if (p.getX() >= teemox) {
-                    rotationRequired = Math.toRadians(degs);
-                } else {
-                    rotationRequired = Math.toRadians(-degs + 180);
-                }
-            }
-
-            AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
-            op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
-
-        }
-
-        //Resets dart
-        if (Enemy.dartx > screenWidth + 50 || Enemy.dartx < -50 || Enemy.darty > screenHeight + 50 || Enemy.darty < -50) {
-    
-            Enemy.isDartMoving = false;
-    
-        }
-
     }
 
     //Calculates gold after Teemo's death
@@ -686,13 +622,13 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     public void level(Graphics g) {
 
         if (score >= 0) {
-            gromp.behavior(g, teemox, teemoy);
+            gromp.behavior(teemox, teemoy, dart.x, dart.y);
         } 
         if (score >= 1000) {
-            wolf.behavior(g, teemox, teemoy);
+            wolf.behavior(teemox, teemoy, dart.x, dart.y);
         }
         if (score >= 3000) {
-            raptor.behavior(g, teemox, teemoy);
+            raptor.behavior(teemox, teemoy, dart.x, dart.y);
             if (raptor.x <= -200) {
                 raptorRand = Math.round(Math.random() * 2);
                 if (raptorRand == 0) {
@@ -708,6 +644,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         if (score % 2500 == 0) {
             Enemy.bgscrollspeed *= 1.25 ;
         }
+
+        dart.behavior(teemoDart, teemox, teemoy, screenWidth, screenHeight, p);
 
         g.drawImage(grompImg, gromp.x, gromp.y, gromp.eWidth, gromp.eHeight, null);
         g.drawImage(wolfImg, wolf.x, wolf.y, wolf.eWidth, wolf.eHeight, null);
@@ -733,8 +671,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         wolf.x = screenWidth;
         raptor.x = screenWidth;
         goldEarned = 0;
-        Enemy.dartx = teemox;
-        Enemy.darty = teemoy;
         itemFunctionality();
         Enemy.teemoHealth = teemoMaxHealth;
         gromp.health = gromp.maxHealth;
@@ -743,7 +679,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         Enemy.grompsKilled = 0;
         Enemy.wolvesKilled = 0;
         Enemy.raptorsKilled = 0;
-        Enemy.isDartMoving = false;
+        Dart.isDartMoving = false;
     }
 
     public void saveGame(File fileName) {
@@ -793,7 +729,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             numDarts+=;
         }
         */
-        Enemy.dartDamage = IE.level + 1;
+        Enemy.dartDamage = IE.level;
     }
 
     //Accept user input
@@ -826,8 +762,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             upUnPressed = true;
         }
 
-        if (gameState == "Game" && e.getKeyCode() == KeyEvent.VK_E) {
-            Enemy.isDartMoving = true;
+        if (gameState == "Game" && e.getKeyCode() == KeyEvent.VK_E && Dart.isDartMoving == false) {
+            dart.x = teemox + 25;
+            dart.y = teemoy + 25;
+            Dart.isDartMoving = true;
+            Dart.getDartMovement = true;
         }
     }
 

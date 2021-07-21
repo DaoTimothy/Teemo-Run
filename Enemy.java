@@ -1,14 +1,9 @@
-import java.awt.*;
-import java.awt.image.BufferedImage;
-
 public class Enemy {
     static int teemoHealth;
     static int screenWidth;
     static int bgscrollspeed;
     static boolean isDartMoving;
     static int dartDamage = 1;
-    static int dartx;
-    static int darty;
     static int grompsKilled = 0;
     static int wolvesKilled = 0;
     static int raptorsKilled = 0;
@@ -21,7 +16,6 @@ public class Enemy {
     int spawnDistance;
     double moveSpeed;
 
-    BufferedImage sprite;
     int eWidth;
     int eHeight;
     
@@ -31,10 +25,9 @@ public class Enemy {
         bgscrollspeed = bgscroll;
     }
 
-    Enemy(BufferedImage img, int hp, int x, int y, int width, int height, double moveSpeed, int spawnDistance, int hitboxCorrection) {
+    Enemy(int hp, int x, int y, int width, int height, double moveSpeed, int spawnDistance, int hitboxCorrection) {
         maxHealth = hp;
         health = maxHealth;
-        sprite = img;
         this.x = x;
         this.y = y;
         eWidth = width;
@@ -64,8 +57,8 @@ public class Enemy {
         }
     }
 
-    public void dartCollision (int teemox, int teemoy) {
-        if (teemoHealth > 0) {
+    public void dartCollision (int teemox, int teemoy, double dartx, double darty) {
+        if (Enemy.teemoHealth > 0) {
             int dartWidth = 62;
             int leftSide = x + hitboxCorrection;
             int rightSide = x + eWidth - hitboxCorrection;
@@ -77,7 +70,7 @@ public class Enemy {
                     health -= dartDamage;
                     dartx = teemox + 25;
                     darty = teemoy + 40;
-                    isDartMoving = false;
+                    Dart.isDartMoving = false;
                     if (health <= 0) {
                         switch(maxHealth) {
                             case 10:
@@ -93,11 +86,11 @@ public class Enemy {
                         x = -200;
                         health = maxHealth;
                     }
-                    
                 }
             }
         }
     }
+
     public void movement () {
         if (x <= -200) {
             health = maxHealth;
@@ -107,9 +100,9 @@ public class Enemy {
         }
     }
 
-    public void behavior (Graphics g, int teemox, int teemoy) {
+    public void behavior(int teemox, int teemoy, double dartx, double darty) {
         movement();
         collision(teemox, teemoy);
-        dartCollision(teemox, teemoy);
+        dartCollision(teemox, teemoy, dartx, darty);
     }
 }

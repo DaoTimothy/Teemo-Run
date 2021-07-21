@@ -4,7 +4,6 @@ import java.io.*;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.imageio.ImageIO;
-import java.awt.image.*;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -58,11 +57,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     int teemox = screenWidth / 3, teemoy = screenHeight - 250;
     int originalTeemoy = teemoy;
     int teemoMaxHealth = 1;
-    int dartAngle = 0;
-    double dartSpeed = 7.5;
-    double xPerFrame = 0, yPerFrame = 0;
-    double rotationRequired = 0;
-    AffineTransformOp op;
 
     long raptorRand = 0;
 
@@ -266,7 +260,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     //Drawing menu method
     public void drawMenu(Graphics g) {
 
-        g.drawImage(background[2], 0, 0, screenWidth, screenHeight, null);
+        g.drawImage(background[2], -5, 0, screenWidth + 5, screenHeight, null);
         
         drawMenuButton(g, screenWidth / 2 - 550, screenHeight - 400, 300, 200, buttonGreen, buttonFont, Color.BLACK, Color.WHITE, "Play", "Game", 75, 75);
         drawMenuButton(g, screenWidth / 2 - 150, screenHeight - 400, 300, 200, buttonGreen, buttonFont, Color.BLACK, Color.WHITE, "Shop", "Shop", 60, 75);
@@ -282,7 +276,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     //Drawing shop method
     public void drawShop(Graphics g) {
         
-        g.drawImage(background[2], 0, 0, screenWidth, screenHeight, null);
+        g.drawImage(background[2], -5, 0, screenWidth + 5, screenHeight, null);
 
         g.setFont(titleFont);
         g.setColor(shopBlue);
@@ -376,7 +370,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         if (mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height) {
             g.setColor(textHoverColor);
             g.drawString(text, x + textCorrectionx, y + height - textCorrectiony);
-            if (mouseClicked && totalGold >= item.price && item.level < item.maxLevel - 1) {
+            if (mouseClicked && totalGold >= item.price && item.level < item.maxLevel) {
                 //Buy item
                 totalGold -= item.price;
                 item.upgrade();                
@@ -396,7 +390,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.fillRect(x, y, 600, screenHeight / 5);
         g.drawImage(item.itemImage, x + 25, (y + (screenHeight / 5) / 2) - (screenHeight / 10 - 25), screenHeight / 5 - 50, screenHeight / 5 - 50, null);
         g.setColor(goldGold);
-        if (item.level < item.maxLevel - 1) {
+        item.price = item.originPrice + (item.priceChange * item.level);
+        if (item.level < item.maxLevel) {
             g.drawString(String.format("%17s", "" + item.price + "g"), x + 450 , y + 25);
         } else {
             g.drawString(String.format("Sold Out!"), x + 500 , y + 25);
@@ -408,13 +403,13 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
     //Drawing Save Screen
     public void drawSaveGame(Graphics g) {
-        g.drawImage(background[2], 0, 0, screenWidth, screenHeight, null);
+        g.drawImage(background[2], -5, 0, screenWidth + 5, screenHeight, null);
 
-        drawSaveGameOption(g, file[0], screenHeight / 2 - 250);
-        drawSaveGameOption(g, file[1], screenHeight / 2);
-        drawSaveGameOption(g, file[2], screenHeight / 2 + 250);
+        drawSaveGameOption(g, file[0], screenHeight / 2 - 350);
+        drawSaveGameOption(g, file[1], screenHeight / 2 - 100);
+        drawSaveGameOption(g, file[2], screenHeight / 2 + 150);
         
-        drawMenuButton(g, screenWidth - 250, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Menu", "Menu", 35, 30);
+        drawMenuButton(g, screenWidth - 320, screenHeight - 110, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Menu", "Menu", 35, 30);
         g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
     }
 
@@ -754,6 +749,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             noonquiver.level = Integer.parseInt(sc.nextLine().substring(18));
             IE.level = Integer.parseInt(sc.nextLine().substring(10));
             sc.close();
+            gameState = "Menu";
         } catch (IOException er) {
             System.out.println("Error loading game.");
             er.printStackTrace();

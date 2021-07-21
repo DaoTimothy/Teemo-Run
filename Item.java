@@ -6,16 +6,17 @@ public class Item {
     String description;
     int level;
     int maxLevel;
+    int originPrice;
     int price;
     int priceChange;
 
-    Item (BufferedImage img, String name, String desc, int maxLevel, int price, int priceChange) {
+    Item (BufferedImage img, String name, String desc, int maxLevel, int originPrice, int priceChange) {
         itemImage = img;
         itemName = name;
         description = desc;
         level = 0;
         this.maxLevel = maxLevel;
-        this.price = price;
+        this.originPrice = originPrice;
         this.priceChange = priceChange;
     }
 

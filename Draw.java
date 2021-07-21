@@ -1,11 +1,13 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
+import java.io.*;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.imageio.ImageIO;
 import java.awt.image.*;
 import java.awt.geom.AffineTransform;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 public class Draw extends JPanel implements ActionListener, KeyListener, MouseListener {
     //Declaring variables
@@ -40,12 +42,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     Font goldFont = new Font("Courier New", Font.BOLD, 30);
     Font shopPrice = new Font("Courier New", Font.PLAIN, 30);
     int score = 0;
-    int highscore = -9999999;
+    int highscore = 0;
     
     private BufferedImage crosshair;
     private BufferedImage[] teemoSprite = new BufferedImage[6];
     private BufferedImage teemoHat;
-    private BufferedImage[] background = new BufferedImage[4];
+    private BufferedImage[] background = new BufferedImage[3];
     private BufferedImage grompImg;
     private BufferedImage wolfImg;
     private BufferedImage greyFilter;
@@ -87,6 +89,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     float weight = 0.35F;
     boolean isCrouch = false;
 
+    boolean saveInitalized = false;
+    File[] file = new File[3];
+    
+
     public Draw() {
 
         //Getting images
@@ -103,7 +109,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             background[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Backgrounds/background.png"));
             background[1] = ImageIO.read(getClass().getResourceAsStream("/Images/Backgrounds/background2.png"));
             background[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Backgrounds/MenuBackground.png"));
-            background[3] = ImageIO.read(getClass().getResourceAsStream("/Images/Backgrounds/placeholder_ShopBackground.png"));
             grompImg = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Gromp.png"));
             wolfImg = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Murk-Wolf.png"));
             raptorImg[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor1.png"));
@@ -140,12 +145,18 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
     //Draw stuff of screen
     public void paint(Graphics g) {
+        if (!saveInitalized) {
+            initializeSave();
+        }
         switch (gameState) {
             case "Menu":
                 drawMenu(g);
                 break;
             case "Shop":
                 drawShop(g);
+                break;
+            case "Save":
+                drawSaveGame(g);
                 break;
             case "Game":
                 drawGame(g);
@@ -218,8 +229,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
         g.drawImage(background[2], 0, 0, screenWidth, screenHeight, null);
         
-        drawMenuButton(g, screenWidth / 2 - 400, screenHeight - 400, 300, 200, buttonGreen, buttonFont, Color.BLACK, Color.WHITE, "Play", "Game", 75, 75);
-        drawMenuButton(g, screenWidth / 2 + 100, screenHeight - 400, 300, 200, buttonGreen, buttonFont, Color.BLACK, Color.WHITE, "Shop", "Shop", 60, 75);
+        drawMenuButton(g, screenWidth / 2 - 550, screenHeight - 400, 300, 200, buttonGreen, buttonFont, Color.BLACK, Color.WHITE, "Play", "Game", 75, 75);
+        drawMenuButton(g, screenWidth / 2 - 150, screenHeight - 400, 300, 200, buttonGreen, buttonFont, Color.BLACK, Color.WHITE, "Shop", "Shop", 60, 75);
+        drawMenuButton(g, screenWidth / 2 + 250, screenHeight - 400, 300, 200, buttonGreen, buttonFont, Color.BLACK, Color.white, "Save", "Save", 60, 75);
         if (gameState.equals("Game")) {
             resetGame();
         }
@@ -231,7 +243,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     //Drawing shop method
     public void drawShop(Graphics g) {
         
-        g.drawImage(background[3], 0, 0, screenWidth, screenHeight, null);
+        g.drawImage(background[2], 0, 0, screenWidth, screenHeight, null);
 
         g.setFont(titleFont);
         g.setColor(shopBlue);
@@ -259,7 +271,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.drawString(String.valueOf(totalGold), 200, 125);
 
         g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
-
 
     }
 
@@ -354,6 +365,123 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.setColor(Color.BLACK);
         g.drawString(item.description, x + screenHeight / 5, y + 50);
         drawShopButton(g, x + 500, y + screenHeight / 5 - 75, 75, 50, Color.GREEN, healthFont, Color.BLACK, Color.WHITE, "Buy", item, 15, 15);
+    }
+
+    //Drawing Save Screen
+    public void drawSaveGame(Graphics g) {
+        g.drawImage(background[2], 0, 0, screenWidth, screenHeight, null);
+
+        drawSaveGameOption(g, file[0], screenHeight / 2 - 250);
+        drawSaveGameOption(g, file[1], screenHeight / 2);
+        drawSaveGameOption(g, file[2], screenHeight / 2 + 250);
+        
+        drawMenuButton(g, screenWidth - 250, screenHeight - 150, 200, 100, buttonGreen, smallButtonFont, Color.BLACK, Color.WHITE, "Menu", "Menu", 35, 30);
+        g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
+    }
+
+    //Drawing Save Screen Option
+    public void drawSaveGameOption(Graphics g, File fileName, int y) {
+        g.setColor(shopBlue);
+        g.setFont(shopButtonFont);
+        g.fillRect(screenWidth / 2 - 600, y, 500, 150);
+        g.setColor(Color.BLACK);
+        g.drawString(fileName.toString().substring(0, fileName.toString().length() - 4), screenWidth / 2 - 550, y + 50);
+        g.drawString(previewSave(fileName), screenWidth / 2 - 550, y + 100);
+
+        int mx = (int)p.getX();
+        int my = (int)p.getY();
+        
+        g.setColor(shopBlue);
+        g.setFont(smallButtonFont);
+        g.fillRect(screenWidth / 2, y, 175, 150);
+
+        if (mx >= screenWidth / 2 && mx <= screenWidth / 2 + 175 && my >= y && my <= y + 150) {
+            g.setColor(Color.WHITE);
+            g.drawString("Save", screenWidth / 2 + 25, y + 90);
+            if (mouseClicked) {
+                saveGame(fileName);
+            }
+        } else {
+            g.setColor(Color.BLACK);
+            g.drawString("Save", screenWidth / 2 + 25, y + 90);
+        }
+
+        g.setColor(shopBlue);
+        g.fillRect(screenWidth / 2 + 225, y, 175, 150);
+
+        if (mx >= screenWidth / 2 + 225 && mx <= screenWidth / 2 + 400 && my >= y && my <= y + 150) {
+            g.setColor(Color.WHITE);
+            g.drawString("Load", screenWidth / 2 + 250, y + 90);
+            if (mouseClicked) {
+                loadGame(fileName);
+            }
+        } else {
+            g.setColor(Color.BLACK);
+            g.drawString("Load", screenWidth / 2 + 250, y + 90);
+        }
+
+        g.setColor(Color.RED);
+        g.fillRect(screenWidth / 2 + 450, y, 200, 150);
+
+        if (mx >= screenWidth / 2 + 450 && mx <= screenWidth / 2 + 650 && my >= y && my <= y + 150) {
+            g.setColor(Color.WHITE);
+            g.drawString("Delete", screenWidth / 2 + 475, y + 90);
+            if (mouseClicked) {
+                deleteGame(fileName);
+            }
+        } else {
+            g.setColor(Color.BLACK);
+            g.drawString("Delete", screenWidth / 2 + 475, y + 90);
+        }
+    }
+
+    public String previewSave(File fileName) {
+        try {
+            Scanner sc = new Scanner (fileName);
+            String temp = sc.nextLine();
+            sc.close();
+            return temp;
+            
+        } catch (IOException err) {
+            err.printStackTrace();
+        }
+        return "";
+    }
+
+    public void initializeSave() {
+        String[] fileNames = {"SaveFile1.txt", "SaveFile2.txt", "SaveFile3.txt"};
+        for (int i = 0; i < file.length; i++) {
+            try {
+                file[i] = new File (fileNames[i]);
+                Scanner sc = new Scanner (file[i]);
+            } catch (FileNotFoundException e) {
+                try {
+                    file[i].createNewFile();
+                } catch (IOException er) {
+                    
+                }
+            }
+        }
+
+        saveInitalized = true;
+        
+        for (int i = 0; i < file.length; i++) {
+            try {
+                previewSave(file[i]);
+            } catch (NoSuchElementException err) {
+                try {
+                    FileWriter fw = new FileWriter(fileNames[i]);
+                    fw.write("Highscore: 0\n");
+                    fw.write("Gold: 0\n");
+                    fw.write("Warmog Level: 0\n");
+                    fw.write("Boots Level: 0\n");
+                    fw.write("Noonquiver Level: 0\n");
+                    fw.write("IE Level: 0\n");
+                    fw.close();
+                } catch (IOException e) {
+                }
+            }
+        }
     }
 
     //Drawing the actual game method
@@ -544,10 +672,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.setFont(goldFont);
         g.drawString(String.format("Highscore: " + highscore), screenWidth / 2 - 120, 550);
         if (goldEarned == 0) {
-            goldEarned = (int) score / 125 + Enemy.grompsKilled * 50 + Enemy.wolvesKilled * 25 + Enemy.raptorsKilled * 10;
+            goldEarned = (int) score / 100 + Enemy.grompsKilled * 50 + Enemy.wolvesKilled * 25 + Enemy.raptorsKilled * 10;
             totalGold += goldEarned;
         }
-        g.drawString(String.format("Score: %-10s%8s", "" + score + "...", "..." + (int) score / 150 + "g"), screenWidth / 2 - 225, 350);
+        g.drawString(String.format("Score: %-10s%8s", "" + score + "...", "..." + (int) score / 100 + "g"), screenWidth / 2 - 225, 350);
         g.drawString(String.format("Gromps: %-9s%8s", "" + Enemy.grompsKilled + "...", "..." + (int) Enemy.grompsKilled * 50 + "g"), screenWidth / 2 - 225, 400);
         g.drawString(String.format("Wolves: %-9s%8s", "" + Enemy.wolvesKilled + "...", "..." + (int) Enemy.wolvesKilled * 25 + "g"), screenWidth / 2 - 225, 450);
         g.drawString(String.format("Raptors: %-8s%8s", "" + Enemy.raptorsKilled + "...", "..." + (int) Enemy.raptorsKilled * 10 + "g"), screenWidth / 2 - 225, 500);
@@ -616,6 +744,43 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         Enemy.wolvesKilled = 0;
         Enemy.raptorsKilled = 0;
         Enemy.isDartMoving = false;
+    }
+
+    public void saveGame(File fileName) {
+        try {
+            FileWriter fw = new FileWriter(fileName);
+            fw.write("Highscore: " + highscore + "\n");
+            fw.write("Gold: " + totalGold + "\n");
+            fw.write("Warmog Level: " + warmogs.level + "\n");
+            fw.write("Boots Level: " + boots.level + "\n");
+            fw.write("Noonquiver Level: " + noonquiver.level + "\n");
+            fw.write("IE Level: " + IE.level);
+            fw.close();
+        } catch (IOException e) {
+            System.out.println("Error saving game.");
+            e.printStackTrace();
+        }
+    }
+
+    public void loadGame(File fileName) {
+        try {
+            Scanner sc = new Scanner(fileName);
+            highscore = Integer.parseInt(sc.nextLine().substring(11));
+            totalGold = Integer.parseInt(sc.nextLine().substring(6));
+            warmogs.level = Integer.parseInt(sc.nextLine().substring(14));
+            boots.level = Integer.parseInt(sc.nextLine().substring(13));
+            noonquiver.level = Integer.parseInt(sc.nextLine().substring(18));
+            IE.level = Integer.parseInt(sc.nextLine().substring(10));
+            sc.close();
+        } catch (IOException er) {
+            System.out.println("Error loading game.");
+            er.printStackTrace();
+        }
+    }
+
+    public void deleteGame(File filename) {
+        filename.delete();
+        initializeSave();
     }
 
     public void itemFunctionality() {

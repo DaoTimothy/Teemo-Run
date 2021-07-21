@@ -403,11 +403,15 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             g.drawString("Save", screenWidth / 2 + 25, y + 90);
             if (mouseClicked) {
                 saveGame(fileName);
+                mouseClicked = false;
             }
         } else {
             g.setColor(Color.BLACK);
             g.drawString("Save", screenWidth / 2 + 25, y + 90);
         }
+
+        mx = (int)p.getX();
+        my = (int)p.getY();
 
         g.setColor(shopBlue);
         g.fillRect(screenWidth / 2 + 225, y, 175, 150);
@@ -417,11 +421,15 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             g.drawString("Load", screenWidth / 2 + 250, y + 90);
             if (mouseClicked) {
                 loadGame(fileName);
+                mouseClicked = false;
             }
         } else {
             g.setColor(Color.BLACK);
             g.drawString("Load", screenWidth / 2 + 250, y + 90);
         }
+
+        mx = (int)p.getX();
+        my = (int)p.getY();
 
         g.setColor(Color.RED);
         g.fillRect(screenWidth / 2 + 450, y, 200, 150);
@@ -431,6 +439,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             g.drawString("Delete", screenWidth / 2 + 475, y + 90);
             if (mouseClicked) {
                 deleteGame(fileName);
+                mouseClicked = false;
             }
         } else {
             g.setColor(Color.BLACK);
@@ -452,6 +461,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     public void initializeSave() {
+        
         String[] fileNames = {"SaveFile1.txt", "SaveFile2.txt", "SaveFile3.txt"};
         for (int i = 0; i < file.length; i++) {
             try {
@@ -714,9 +724,18 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         }
     }
 
-    public void deleteGame(File filename) {
-        filename.delete();
-        initializeSave();
+    public void deleteGame(File fileName) {
+        try {
+            FileWriter fw = new FileWriter(fileName);
+            fw.write("Highscore: 0\n");
+            fw.write("Gold: 0\n");
+            fw.write("Warmog Level: 0\n");
+            fw.write("Boots Level: 0\n");
+            fw.write("Noonquiver Level: 0\n");
+            fw.write("IE Level: 0\n");
+            fw.close();
+        } catch (IOException e) {
+        }
     }
 
     public void itemFunctionality() {

@@ -1,3 +1,4 @@
+package src;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -26,9 +27,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
     Font roboto75 = new Font ("Roboto", Font.PLAIN, 75);
     Font roboto50 = new Font("Roboto", Font.PLAIN, 50);
+    Font roboto50BOLD = new Font("Roboto", Font.BOLD, 50);
     Font roboto30BOLD = new Font("Courier New", Font.BOLD, 30);
     Font roboto25 = new Font("Roboto", Font.PLAIN, 25);
     Font roboto20 = new Font ("Roboto", Font.PLAIN, 20);
+    Font roboto25BOLD = new Font ("Roboto", Font.BOLD, 25);
     
     private BufferedImage crosshair;
     private BufferedImage[] teemoSprite = new BufferedImage[6];
@@ -66,6 +69,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     float weight = 0.35F;
     boolean isCrouch = false;
 
+    static boolean dartHit = false;
+
     Enemy settings;
     Enemy gromp;
     Enemy wolf;
@@ -91,38 +96,48 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     Music menuMusic; 
     boolean menuMusicPlaying = false;
     String menuMusicPath;
+
+    Music sound;
+
+    String jumpSound = "sounds/hut.wav";
+    String shootDart = "sounds/arrow3.wav";
+    String arrowHit = "sounds/dartHit.wav";
+    String teemoDie = "sounds/uaahhh.wav";
+    String buttonClick = "sounds/button.wav";
+    String buyItem = "sounds/CashRegister1.wav";
+    String cantBuyItem = "sounds/cantBuy.wav";
     
     public Draw() {
 
         //Getting images
         try {
 
-            crosshair = ImageIO.read(getClass().getResourceAsStream("/Images/Crosshair.png"));
-            teemoSprite[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo1.png"));
-            teemoSprite[1] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo2.png"));
-            teemoSprite[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo3.png"));
-            teemoSprite[3] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo4.png"));
-            teemoSprite[4] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo5.png"));
-            teemoSprite[5] = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/Teemo6.png"));
-            teemoHat = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/TeemoHat.png"));
-            background[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Backgrounds/background.png"));
-            background[1] = ImageIO.read(getClass().getResourceAsStream("/Images/Backgrounds/background2.png"));
-            background[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Backgrounds/MenuBackground.png"));
-            grompImg = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Gromp.png"));
-            wolfImg = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Murk-Wolf.png"));
-            raptorImg[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor1.png"));
-            raptorImg[1] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor2.png"));
-            raptorImg[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Monsters/Raptor3.png"));
-            teemoDart = ImageIO.read(getClass().getResourceAsStream("/Images/Teemo/teemoDart.png"));
-            items[0] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/Warmogs.png"));
-            items[1] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/Boots_of_Swiftness.png"));
-            items[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/Noonquiver.png"));
-            items[3] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/IE.png"));
-            coin = ImageIO.read(getClass().getResourceAsStream("/Images/Poro Coin.png"));
-            title = ImageIO.read(getClass().getResourceAsStream("/Images/Title.png"));
+            crosshair = ImageIO.read(getClass().getResourceAsStream("/images/others/Crosshair.png"));
+            teemoSprite[0] = ImageIO.read(getClass().getResourceAsStream("/images/teemo/Teemo1.png"));
+            teemoSprite[1] = ImageIO.read(getClass().getResourceAsStream("/images/teemo/Teemo2.png"));
+            teemoSprite[2] = ImageIO.read(getClass().getResourceAsStream("/images/teemo/Teemo3.png"));
+            teemoSprite[3] = ImageIO.read(getClass().getResourceAsStream("/images/teemo/Teemo4.png"));
+            teemoSprite[4] = ImageIO.read(getClass().getResourceAsStream("/images/teemo/Teemo5.png"));
+            teemoSprite[5] = ImageIO.read(getClass().getResourceAsStream("/images/teemo/Teemo6.png"));
+            teemoHat = ImageIO.read(getClass().getResourceAsStream("/images/teemo/TeemoHat.png"));
+            background[0] = ImageIO.read(getClass().getResourceAsStream("/images/backgrounds/background.png"));
+            background[1] = ImageIO.read(getClass().getResourceAsStream("/images/backgrounds/background2.png"));
+            background[2] = ImageIO.read(getClass().getResourceAsStream("/images/backgrounds/MenuBackground.png"));
+            grompImg = ImageIO.read(getClass().getResourceAsStream("/images/monsters/Gromp.png"));
+            wolfImg = ImageIO.read(getClass().getResourceAsStream("/images/monsters/Murk-Wolf.png"));
+            raptorImg[0] = ImageIO.read(getClass().getResourceAsStream("/images/monsters/Raptor1.png"));
+            raptorImg[1] = ImageIO.read(getClass().getResourceAsStream("/images/monsters/Raptor2.png"));
+            raptorImg[2] = ImageIO.read(getClass().getResourceAsStream("/images/monsters/Raptor3.png"));
+            teemoDart = ImageIO.read(getClass().getResourceAsStream("/images/teemo/teemoDart.png"));
+            items[0] = ImageIO.read(getClass().getResourceAsStream("/images/items/Warmogs.png"));
+            items[1] = ImageIO.read(getClass().getResourceAsStream("/images/items/Boots_of_Swiftness.png"));
+            items[2] = ImageIO.read(getClass().getResourceAsStream("/images/items/Noonquiver.png"));
+            items[3] = ImageIO.read(getClass().getResourceAsStream("/images/items/IE.png"));
+            coin = ImageIO.read(getClass().getResourceAsStream("/images/others/Poro Coin.png"));
+            title = ImageIO.read(getClass().getResourceAsStream("/images/others/Title.png"));
 
             settings = new Enemy (teemoMaxHealth, screenWidth, screenWidth / 300);
-            gromp = new Enemy (10, screenWidth, screenHeight - 325, 200, 200, 1, 2000, 40);
+            gromp = new Enemy (10, screenWidth, screenHeight - 310, 175, 175, 1, 2000, 40);
             wolf = new Enemy (5, screenWidth, screenHeight - 275, 150, 150, 2, 6000, 25);
             raptor = new Enemy(1, screenWidth, screenHeight - 500, 100, 100, 1.75, 4000, 25);
 
@@ -135,13 +150,15 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             noonquiver = new Item (items[2], "Noonquiver", "Increases Number of Darts", 2, 1000, 2000);
             IE = new Item (items[3], "Infinity Edge", "Increases Dart Damage", 4, 300, 500);
 
-            greyFilter = ImageIO.read(getClass().getResourceAsStream("/Images/grey-filter.png"));
+            greyFilter = ImageIO.read(getClass().getResourceAsStream("/images/others/grey-filter.png"));
 
             gameMusic = new Music();
-            gameMusicPath = "Sounds/TeemoRunTheme.wav";
+            gameMusicPath = "sounds/TeemoRunTheme.wav";
 
             menuMusic = new Music();
-            menuMusicPath = "Sounds/MenuLofi.wav";
+            menuMusicPath = "sounds/MenuLofi.wav";
+
+            sound = new Music();
 
         } catch (IOException e) {
 
@@ -160,7 +177,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
         switch (gameState) {
             case "Menu":
-
                 if (!menuMusicPlaying) {
                     menuMusic.setFile(menuMusicPath);
                     menuMusic.play();
@@ -201,6 +217,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 gameMusicPlaying = false;
                 drawGameOver(g);
                 break;
+            case "Close":
+                System.exit(0);
         }
 
         mouseClicked = false;
@@ -243,9 +261,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                     teemoy -= jumpStrength;
                     jumpStrength -= weight;
                     if (teemoy - jumpStrength >= screenHeight - 250) {
-                        jumpStrength = screenHeight / 55 / 1.25F;
+                        jumpStrength = screenHeight / 55 / 1.20F;
                         for (int i = 1; i < boots.level; i++) {
-                            jumpStrength += screenHeight / 55 / 1.25F / 8;
+                            jumpStrength += screenHeight / 55 / 1.20F / 12;
                         }
                         teemoy = screenHeight - 250;
                         jumping = false;
@@ -273,7 +291,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         drawMenuButton(g, screenWidth / 2 - 550, screenHeight - 400, 300, 200, buttonGreen, roboto75, Color.BLACK, Color.WHITE, "Play", "Game", 75, 75);
         drawMenuButton(g, screenWidth / 2 - 150, screenHeight - 400, 300, 200, buttonGreen, roboto75, Color.BLACK, Color.WHITE, "Shop", "Shop", 60, 75);
         drawMenuButton(g, screenWidth / 2 + 250, screenHeight - 400, 300, 200, buttonGreen, roboto75, Color.BLACK, Color.white, "Save", "Save", 60, 75);
-        
+        drawMenuButton(g, 50, 50, 150, 60, buttonGreen, roboto50BOLD, Color.black, Color.WHITE, "Exit", "Close", 25, 10);
+
         if (gameState.equals("Game")) {
             resetGame();
         }
@@ -296,6 +315,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             g.drawString(text, x + textCorrectionx, y + height - textCorrectiony);
             
             if (mouseClicked) {
+                sound.playSound(buttonClick);
                 gameState = menu;
                 mouseClicked = false;
             }
@@ -356,11 +376,16 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         if (mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height) {
             g.setColor(textHoverColor);
             g.drawString(text, x + textCorrectionx, y + height - textCorrectiony);
-            if (mouseClicked && totalGold >= item.price && item.level < item.maxLevel) {
-                //Buy item
-                totalGold -= item.price;
-                item.upgrade();                
-                mouseClicked = false;
+            if (mouseClicked && item.level < item.maxLevel) {
+                if (totalGold >= item.price) {
+                    //Buy item
+                    sound.playSound(buyItem);
+                    totalGold -= item.price;
+                    item.upgrade();                
+                    mouseClicked = false;
+                } else {
+                    sound.playSound(cantBuyItem);
+                }
             }
         } else {
             g.setColor(textColor);
@@ -435,10 +460,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     public void drawSaveGameOption(Graphics g, File fileName, int y) {
 
         g.setColor(shopBlue);
-        g.setFont(roboto20);
         g.fillRect(screenWidth / 2 - 600, y, 500, 150);
         g.setColor(Color.BLACK);
-        g.drawString(fileName.toString().substring(0, fileName.toString().length() - 4), screenWidth / 2 - 550, y + 50);
+        g.setFont(roboto25BOLD);
+        g.drawString(fileName.toString().substring(10, fileName.toString().length() - 4), screenWidth / 2 - 550, y + 50);
+        g.setFont(roboto20);
         g.drawString(previewSave(fileName), screenWidth / 2 - 550, y + 100);
 
         int mx = (int)p.getX();
@@ -452,6 +478,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             g.setColor(Color.WHITE);
             g.drawString("Save", screenWidth / 2 + 25, y + 90);
             if (mouseClicked) {
+                sound.playSound(buttonClick);
                 saveGame(fileName);
                 mouseClicked = false;
             }
@@ -470,6 +497,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             g.setColor(Color.WHITE);
             g.drawString("Load", screenWidth / 2 + 250, y + 90);
             if (mouseClicked) {
+                sound.playSound(buttonClick);
                 loadGame(fileName);
                 mouseClicked = false;
             }
@@ -488,6 +516,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             g.setColor(Color.WHITE);
             g.drawString("Delete", screenWidth / 2 + 475, y + 90);
             if (mouseClicked) {
+                sound.playSound(buttonClick);
                 deleteGame(fileName);
                 mouseClicked = false;
             }
@@ -500,11 +529,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
     public void initializeSave() {
         
-        String[] fileNames = {"SaveFile1.txt", "SaveFile2.txt", "SaveFile3.txt"};
+        String[] fileNames = {"Save File 1.txt", "Save File 2.txt", "Save File 3.txt"};
         for (int i = 0; i < file.length; i++) {
             try {
-                file[i] = new File (fileNames[i]);
+                file[i] = new File ("savefiles/" + fileNames[i]);
                 Scanner sc = new Scanner (file[i]);
+                sc.close();
             } catch (FileNotFoundException e) {
                 try {
                     file[i].createNewFile();
@@ -541,6 +571,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         try {
             Scanner sc = new Scanner (fileName);
             String temp = sc.nextLine();
+            temp = temp + ", " + sc.nextLine();
             sc.close();
             return temp;
             
@@ -675,6 +706,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         drawHealthBar(g);
 
         if (Enemy.teemoHealth <= 0) {
+            if (gameState == "Game") {
+                sound.playSound(teemoDie);
+            }
             gameState = "GameOver";
         }
 
@@ -684,7 +718,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
         teemoMaxHealth = warmogs.level + 1;
         for (int i = 1; i < boots.level; i++) {
-            jumpStrength += screenHeight / 55 / 1.25F / 8;
+            jumpStrength += screenHeight / 55 / 1.20F / 12;
         }
         Enemy.dartDamage = IE.level + 1;
 
@@ -719,11 +753,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
         if (score >= 0) {
             gromp.behavior(teemox, teemoy, dart1, dart2, dart3);
-        } 
-        if (score >= 1000) {
-            wolf.behavior(teemox, teemoy, dart1, dart2, dart3);
         }
-        if (score >= 3000) {
+        if (score >= 2500) {
             raptor.behavior(teemox, teemoy, dart1, dart2, dart3);
             if (raptor.x <= -200) {
                 raptorRand = Math.round(Math.random() * 2);
@@ -736,9 +767,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 }
                 raptorRand = Math.round(Math.random() * 2);
             }
+        } 
+        if (score >= 5000) {
+            wolf.behavior(teemox, teemoy, dart1, dart2, dart3);
         }
 
-        if (score % 2500 == 0) {
+        if (score % 5000 == 0 && score > 5000 && score < 20001) {
             Enemy.bgscrollspeed *= 1.25 ;
         }
 
@@ -749,6 +783,11 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.drawImage(grompImg, gromp.x, gromp.y, gromp.eWidth, gromp.eHeight, null);
         g.drawImage(wolfImg, wolf.x, wolf.y, wolf.eWidth, wolf.eHeight, null);
         g.drawImage(raptorImg[(int)raptorRand], raptor.x, raptor.y, raptor.eWidth, raptor.eHeight, null);
+
+        if (dartHit == true) {
+            sound.playSound(arrowHit);
+            dartHit = false;
+        }
 
     }
 
@@ -764,7 +803,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         upUnPressed = false;
         jumping = false;
         isCrouch = false; 
-        jumpStrength = screenHeight / 55 / 1.25F;   
+        jumpStrength = screenHeight / 55 / 1.20F;   
         score = 0;
         Enemy.bgscrollspeed = screenWidth / 300;
         gromp.x = screenWidth;
@@ -854,8 +893,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     public void keyPressed(KeyEvent e) {
 
         //Teemo jump
-        if (e.getKeyCode() == KeyEvent.VK_SPACE && upPressed == false && e.getKeyCode() != KeyEvent.VK_W && isCrouch == false) {
+        if (e.getKeyCode() == KeyEvent.VK_SPACE && upPressed == false && e.getKeyCode() != KeyEvent.VK_W && isCrouch == false && jumping == false) {
             upPressed = true;
+            sound.playSound(jumpSound);
         } 
 
         //Teemo Crouch
@@ -890,6 +930,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 dart3.y = teemoy + 25;
                 dart3.isDartMoving = true;
                 dart3.getDartMovement = true;
+                sound.playSound(shootDart);
             }
 
             if (dart1.isDartMoving && !dart2.isDartMoving && noonquiver.level >= 1) {
@@ -897,6 +938,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 dart2.y = teemoy + 25;
                 dart2.isDartMoving = true;
                 dart2.getDartMovement = true;
+                sound.playSound(shootDart);
             }
 
             if (!dart1.isDartMoving) {
@@ -904,10 +946,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 dart1.y = teemoy + 25;
                 dart1.isDartMoving = true;
                 dart1.getDartMovement = true;
+                sound.playSound(shootDart);
             }
-            
 
-            
         }
 
     }

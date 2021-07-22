@@ -1,3 +1,4 @@
+package src;
 public class Enemy {
 
     static int teemoHealth;
@@ -81,6 +82,8 @@ public class Enemy {
                     dart.x = teemox + 25;
                     dart.y = teemoy + 40;
                     dart.isDartMoving = false;
+
+                    Draw.dartHit = true;
 
                     if (health <= 0) {
                         switch(maxHealth) {

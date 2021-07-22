@@ -1,3 +1,4 @@
+package src;
 import java.io.File;
 
 import javax.sound.sampled.AudioInputStream;
@@ -38,5 +39,19 @@ public class Music {
         clip.stop();
         clip.close();
         
+    }
+
+    public void playSound(String soundName) {
+        try {
+            File file = new File (soundName);
+            AudioInputStream sound = AudioSystem.getAudioInputStream(file);
+            //AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(soundName).getAbsoluteFile( ));
+            Clip clip = AudioSystem.getClip();
+            clip.open(sound);
+            clip.start();
+        } catch(Exception ex) {
+            System.out.println("Error with playing sound.");
+            ex.printStackTrace();
+        }
     }
 }

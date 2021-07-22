@@ -39,6 +39,7 @@ public class Dart {
         if (isDartMoving == false) {
             dartAngle = 90;
         }
+
         if (getDartMovement == true) { 
             dartAngle = Math.toDegrees(Math.atan((double)Math.abs(((double)screenHeight - (double)y) - ((double)screenHeight - ((double)p.getY() - 25))) / (double)Math.abs(((double)p.getX() - 25) - (double)x)));
         }
@@ -49,13 +50,11 @@ public class Dart {
             yPerFrame = speed * Math.sin(Math.toRadians(dartAngle));
 
             if (p.getX() - 25 < x) {
-
                 xPerFrame = -xPerFrame;
             }
+
             if (p.getY() - 25 > y) {
-
                 yPerFrame = -yPerFrame;
-
             } 
 
         }
@@ -80,6 +79,7 @@ public class Dart {
             } else if (p.getX() - 25 <= x) {
                 rotationRequired = Math.toRadians(dartAngle - 180);
             }
+
             if (p.getY() - 25 >= y) {
                 if (p.getX() - 25 >= x) {
                     rotationRequired = Math.toRadians(dartAngle);
@@ -97,15 +97,15 @@ public class Dart {
         
         //Resets dart
         if (x > screenWidth + 50 || x < -50 || y > screenHeight + 50 || y < -50) {
-    
             isDartMoving = false;
-    
         }        
 
     }
 
     public void behavior(BufferedImage teemoDart, int teemox, int teemoy, double screenWidth, int screenHeight, Point p) {
+
         movement(teemoDart, teemox, teemoy, screenWidth, screenHeight, p);
+        
     }
     
 }

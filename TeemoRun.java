@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 public class TeemoRun {
 
     public static void main(String args[]) {
+        
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
 
         Draw draw = new Draw();

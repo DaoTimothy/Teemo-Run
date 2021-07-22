@@ -1,6 +1,7 @@
 import java.awt.image.BufferedImage;
 
 public class Item {
+
     BufferedImage itemImage;
     String itemName;
     String description;
@@ -11,6 +12,7 @@ public class Item {
     int priceChange;
 
     Item (BufferedImage img, String name, String desc, int maxLevel, int originPrice, int priceChange) {
+
         itemImage = img;
         itemName = name;
         description = desc;
@@ -18,10 +20,13 @@ public class Item {
         this.maxLevel = maxLevel;
         this.originPrice = originPrice;
         this.priceChange = priceChange;
+
     }
 
     public void upgrade() {
+
         level++;
         price += priceChange;
+        
     }
 }

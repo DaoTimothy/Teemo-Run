@@ -1,5 +1,5 @@
 # Game
 To Do
-Noonquiver functionality
-Music
-Title
+Mute Button
+Exit Button
+Credits

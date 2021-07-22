@@ -3,7 +3,6 @@ public class Enemy {
     static int teemoHealth;
     static int screenWidth;
     static int bgscrollspeed;
-    static boolean isDartMoving;
     static int dartDamage = 1;
     static int grompsKilled = 0;
     static int wolvesKilled = 0;
@@ -66,22 +65,22 @@ public class Enemy {
 
     }
 
-    public void dartCollision (int teemox, int teemoy, double dartx, double darty) {
+    public void dartCollision (int teemox, int teemoy, Dart dart) {
 
         if (Enemy.teemoHealth > 0) {
             int dartWidth = 64;
             int leftSide = x + hitboxCorrection;
             int rightSide = x + eWidth - hitboxCorrection;
-            if (dartx < leftSide && dartx + dartWidth > leftSide || dartx < rightSide && dartx + dartWidth > rightSide || dartx > leftSide && dartx + dartWidth < rightSide) {
+            if (dart.x < leftSide && dart.x + dartWidth > leftSide || dart.x < rightSide && dart.x + dartWidth > rightSide || dart.x > leftSide && dart.x + dartWidth < rightSide) {
                 int dartHeight = 12;
                 int topSide = y + hitboxCorrection;
                 int botSide = y + eHeight - hitboxCorrection;
 
-                if (darty + dartHeight >= topSide && darty <= topSide || darty <= botSide && darty + dartHeight >= botSide || darty >= topSide && darty + dartHeight <= botSide) {
+                if (dart.y + dartHeight >= topSide && dart.y <= topSide || dart.y <= botSide && dart.y + dartHeight >= botSide || dart.y >= topSide && dart.y + dartHeight <= botSide) {
                     health -= dartDamage;
-                    dartx = teemox + 25;
-                    darty = teemoy + 40;
-                    Dart.isDartMoving = false;
+                    dart.x = teemox + 25;
+                    dart.y = teemoy + 40;
+                    dart.isDartMoving = false;
 
                     if (health <= 0) {
                         switch(maxHealth) {
@@ -116,11 +115,13 @@ public class Enemy {
 
     }
 
-    public void behavior(int teemox, int teemoy, double dartx, double darty) {
+    public void behavior(int teemox, int teemoy, Dart dart1, Dart dart2, Dart dart3) {
 
         movement();
         collision(teemox, teemoy);
-        dartCollision(teemox, teemoy, dartx, darty);
+        dartCollision(teemox, teemoy, dart1);
+        dartCollision(teemox, teemoy, dart2);
+        dartCollision(teemox, teemoy, dart3);
         
     }
 }

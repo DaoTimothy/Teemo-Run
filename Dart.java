@@ -10,10 +10,12 @@ public class Dart {
     double xPerFrame;
     double yPerFrame;
     double dartAngle = 0;
-    
-    static boolean isDartMoving = false;
+    boolean getDartMovement = false;
+    boolean isDartMoving = false;
+
     static double speed = 7.5;
-    static boolean getDartMovement = false;
+    static int dartNum = 1;
+    int dartNumber;
 
     AffineTransform tx = AffineTransform.getRotateInstance(0, 32, 32);
     AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);  
@@ -22,7 +24,8 @@ public class Dart {
 
         this.x = x;
         this.y = y;
-
+        dartNumber = dartNum;
+        dartNum++;
     }
 
     public void movement(BufferedImage teemoDart, int teemox, int teemoy, double screenWidth, double screenHeight, Point p) {
@@ -31,7 +34,7 @@ public class Dart {
         if (isDartMoving == false) {
 
             y = screenHeight - 100;
-            x = 100;
+            x = 100 * dartNumber;
 
         } 
         

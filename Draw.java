@@ -41,6 +41,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     private BufferedImage greyFilter;
     private BufferedImage[] items = new BufferedImage[4];
     private BufferedImage coin;
+    private BufferedImage title;
 
     String gameState = "Menu";
     boolean gameOver = false;
@@ -71,7 +72,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     Enemy raptor;
     long raptorRand = 0;
 
-    Dart dart;
+    Dart dart1;
+    Dart dart2;
+    Dart dart3;
 
     Item warmogs;
     Item boots;
@@ -116,13 +119,16 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             items[2] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/Noonquiver.png"));
             items[3] = ImageIO.read(getClass().getResourceAsStream("/Images/Items/IE.png"));
             coin = ImageIO.read(getClass().getResourceAsStream("/Images/Poro Coin.png"));
+            title = ImageIO.read(getClass().getResourceAsStream("/Images/Title.png"));
 
             settings = new Enemy (teemoMaxHealth, screenWidth, screenWidth / 300);
             gromp = new Enemy (10, screenWidth, screenHeight - 325, 200, 200, 1, 2000, 40);
             wolf = new Enemy (5, screenWidth, screenHeight - 275, 150, 150, 2, 6000, 25);
             raptor = new Enemy(1, screenWidth, screenHeight - 500, 100, 100, 1.75, 4000, 25);
 
-            dart = new Dart(teemox, teemoy);
+            dart1 = new Dart(teemox, teemoy);
+            dart2 = new Dart(teemox, teemoy);
+            dart3 = new Dart(teemox, teemoy);
 
             warmogs = new Item (items[0], "Warmogs", "Increases Teemo's Health", 4, 500, 1000);
             boots = new Item (items[1], "Boots", "Increases Teemo's Jump Height", 7, 100, 200);
@@ -132,10 +138,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             greyFilter = ImageIO.read(getClass().getResourceAsStream("/Images/grey-filter.png"));
 
             gameMusic = new Music();
-            gameMusicPath = "Sounds/teemo_run_track.wav";
+            gameMusicPath = "Sounds/TeemoRunTheme.wav";
 
             menuMusic = new Music();
-            menuMusicPath = "Sounds/teemo_run_track.wav";
+            menuMusicPath = "Sounds/MenuLofi.wav";
 
         } catch (IOException e) {
 
@@ -263,6 +269,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
         g.drawImage(background[2], -5, 0, screenWidth + 5, screenHeight, null);
         
+        g.drawImage(title, screenWidth / 2 - 450, 200, 900, 200, null);
         drawMenuButton(g, screenWidth / 2 - 550, screenHeight - 400, 300, 200, buttonGreen, roboto75, Color.BLACK, Color.WHITE, "Play", "Game", 75, 75);
         drawMenuButton(g, screenWidth / 2 - 150, screenHeight - 400, 300, 200, buttonGreen, roboto75, Color.BLACK, Color.WHITE, "Shop", "Shop", 60, 75);
         drawMenuButton(g, screenWidth / 2 + 250, screenHeight - 400, 300, 200, buttonGreen, roboto75, Color.BLACK, Color.white, "Save", "Save", 60, 75);
@@ -630,12 +637,28 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         } 
 
         //Dart
-        if (Dart.isDartMoving == true) {
-            g.drawImage(dart.op.filter(teemoDart, null), (int)dart.x, (int)dart.y, null);
+        if (dart1.isDartMoving == true) {
+            g.drawImage(dart1.op.filter(teemoDart, null), (int)dart1.x, (int)dart1.y, null);
         } else {
-            g.drawImage(teemoDart, (int)dart.x, (int)dart.y, null);
+            g.drawImage(teemoDart, (int)dart1.x, (int)dart1.y, null);
         }
-
+        
+        if (noonquiver.level >= 1) {
+            if (dart2.isDartMoving == true) {
+                g.drawImage(dart2.op.filter(teemoDart, null), (int)dart2.x, (int)dart2.y, null);
+            } else {
+                g.drawImage(teemoDart, (int)dart2.x, (int)dart2.y, null);
+            }
+        }
+    
+        if (noonquiver.level >= 2) {
+            if (dart3.isDartMoving == true) {
+                g.drawImage(dart3.op.filter(teemoDart, null), (int)dart3.x, (int)dart3.y, null);
+            } else {
+                g.drawImage(teemoDart, (int)dart3.x, (int)dart3.y, null);
+            }
+        }
+        
         //Crosshair
         g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
 
@@ -663,11 +686,6 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         for (int i = 1; i < boots.level; i++) {
             jumpStrength += screenHeight / 55 / 1.25F / 8;
         }
-        /*
-        for (int i = 1; i < noonquiver.level; i++) {
-            numDarts+=;
-        }
-        */
         Enemy.dartDamage = IE.level + 1;
 
     }
@@ -700,13 +718,13 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
      public void level(Graphics g) {
 
         if (score >= 0) {
-            gromp.behavior(teemox, teemoy, dart.x, dart.y);
+            gromp.behavior(teemox, teemoy, dart1, dart2, dart3);
         } 
         if (score >= 1000) {
-            wolf.behavior(teemox, teemoy, dart.x, dart.y);
+            wolf.behavior(teemox, teemoy, dart1, dart2, dart3);
         }
         if (score >= 3000) {
-            raptor.behavior(teemox, teemoy, dart.x, dart.y);
+            raptor.behavior(teemox, teemoy, dart1, dart2, dart3);
             if (raptor.x <= -200) {
                 raptorRand = Math.round(Math.random() * 2);
                 if (raptorRand == 0) {
@@ -724,7 +742,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             Enemy.bgscrollspeed *= 1.25 ;
         }
 
-        dart.behavior(teemoDart, teemox, teemoy, screenWidth, screenHeight, p);
+        dart1.behavior(teemoDart, teemox, teemoy, screenWidth, screenHeight, p);
+        dart2.behavior(teemoDart, teemox, teemoy, screenWidth, screenHeight, p);
+        dart3.behavior(teemoDart, teemox, teemoy, screenWidth, screenHeight, p);
 
         g.drawImage(grompImg, gromp.x, gromp.y, gromp.eWidth, gromp.eHeight, null);
         g.drawImage(wolfImg, wolf.x, wolf.y, wolf.eWidth, wolf.eHeight, null);
@@ -759,7 +779,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         Enemy.grompsKilled = 0;
         Enemy.wolvesKilled = 0;
         Enemy.raptorsKilled = 0;
-        Dart.isDartMoving = false;
+        dart1.isDartMoving = false;
+        dart2.isDartMoving = false;
+        dart3.isDartMoving = false;
 
     }
 
@@ -772,7 +794,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     //Draws game over screen
     public void drawGameOver(Graphics g) {
 
-        Dart.isDartMoving = false;
+        dart1.isDartMoving = false;
+        dart2.isDartMoving = false;
+        dart3.isDartMoving = false;
 
         if (score > highscore) {
             highscore = score;
@@ -859,11 +883,31 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             upUnPressed = true;
         }
 
-        if (gameState == "Game" && e.getKeyCode() == KeyEvent.VK_E && Dart.isDartMoving == false) {
-            dart.x = teemox + 25;
-            dart.y = teemoy + 25;
-            Dart.isDartMoving = true;
-            Dart.getDartMovement = true;
+        if (gameState == "Game" && e.getKeyCode() == KeyEvent.VK_E && (!dart1.isDartMoving || !dart2.isDartMoving || !dart3.isDartMoving)) {
+
+            if (dart2.isDartMoving && !dart3.isDartMoving && noonquiver.level >= 2) {
+                dart3.x = teemox + 25;
+                dart3.y = teemoy + 25;
+                dart3.isDartMoving = true;
+                dart3.getDartMovement = true;
+            }
+
+            if (dart1.isDartMoving && !dart2.isDartMoving && noonquiver.level >= 1) {
+                dart2.x = teemox + 25;
+                dart2.y = teemoy + 25;
+                dart2.isDartMoving = true;
+                dart2.getDartMovement = true;
+            }
+
+            if (!dart1.isDartMoving) {
+                dart1.x = teemox + 25;
+                dart1.y = teemoy + 25;
+                dart1.isDartMoving = true;
+                dart1.getDartMovement = true;
+            }
+            
+
+            
         }
 
     }

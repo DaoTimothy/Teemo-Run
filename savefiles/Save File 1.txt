@@ -1,6 +1,6 @@
 Highscore: 0
 Gold: 0
-Warmog Level: 0
-Boots Level: 0
+Warmog Level: 1
+Boots Level: 2
 Noonquiver Level: 0
 IE Level: 0

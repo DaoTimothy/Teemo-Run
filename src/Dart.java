@@ -14,7 +14,7 @@ public class Dart {
     boolean getDartMovement = false;
     boolean isDartMoving = false;
 
-    static double speed = 7.5;
+    static double speed = 15;
     static int dartNum = 1;
     int dartNumber;
 

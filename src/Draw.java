@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class Draw extends JPanel implements ActionListener, KeyListener, MouseListener {
     //Declaring variables
-    Timer timer = new Timer(0, this);
+    Timer timer = new Timer(1, this);
 
     Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
     int screenWidth = (int)size.getWidth();
@@ -32,6 +32,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     Font roboto25 = new Font("Roboto", Font.PLAIN, 25);
     Font roboto20 = new Font ("Roboto", Font.PLAIN, 20);
     Font roboto25BOLD = new Font ("Roboto", Font.BOLD, 25);
+    Font roboto60BOLD = new Font("Roboto", Font.BOLD, 60);
     
     private BufferedImage crosshair;
     private BufferedImage[] teemoSprite = new BufferedImage[6];
@@ -67,7 +68,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     boolean jumping = false;
     boolean upUnPressed = false;
     float jumpStrength = screenHeight / 55;
-    float weight = 0.35F;
+    float weight = 0.45F;
     boolean isCrouch = false;
 
     static boolean dartHit = false;
@@ -204,6 +205,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 drawSaveGame(g);
                 break;
 
+            case "Credits":
+                drawCredits(g);
+                break;
+
             case "Game":
                 menuMusic.stop();
                 menuMusicPlaying = false;
@@ -296,6 +301,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         drawMenuButton(g, screenWidth / 2 - 150, screenHeight - 400, 300, 200, buttonGreen, roboto75, Color.BLACK, Color.WHITE, "Shop", "Shop", 60, 75);
         drawMenuButton(g, screenWidth / 2 + 250, screenHeight - 400, 300, 200, buttonGreen, roboto75, Color.BLACK, Color.white, "Save", "Save", 60, 75);
         drawMenuButton(g, 50, 50, 150, 60, buttonGreen, roboto50BOLD, Color.black, Color.WHITE, "Exit", "Close", 25, 10);
+        drawMenuButton(g, 50, screenHeight - 100, 150, 60, buttonGreen, roboto30BOLD, Color.BLACK, Color.WHITE, "Credits", "Credits", 15, 20);
 
         if (gameState.equals("Game")) {
             resetGame();
@@ -327,6 +333,19 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             g.setColor(textColor);
             g.drawString(text, x + textCorrectionx, y + height - textCorrectiony);
         }
+
+    }
+
+    public void drawCredits(Graphics g) {
+
+        g.drawImage(background[2], -5, 0, screenWidth + 5, screenHeight, null);
+
+        g.setFont(roboto60BOLD);
+        g.drawString("Creators: Danial McIntyre and Timothy Dao", screenWidth / 2 - 625, 300);
+        g.drawString("Music: Nigel Clifford", screenWidth / 2 - 300, 500);
+        drawMenuButton(g, screenWidth / 2 - 200, 650, 400, 200, buttonGreen, roboto60BOLD, Color.BLACK, Color.WHITE, "Menu", "Menu", 115, 70);
+
+        g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
 
     }
 
@@ -661,12 +680,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             teemoy = screenHeight - 200;
             g.drawImage(teemoHat, teemox, teemoy, 100, 50, null);
         } else {
-            g.drawImage(teemoSprite[(int)frameCounter/10], teemox, teemoy, 100, 100, null);
+            g.drawImage(teemoSprite[(int)frameCounter/5], teemox, teemoy, 100, 100, null);
             if (jumping || Enemy.teemoHealth <= 0) {
             } else {
                 frameCounter++;
             }
-            if (frameCounter >= 60) {
+            if (frameCounter >= 30) {
                 frameCounter = 0;
             }
         } 
@@ -813,7 +832,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         isCrouch = false; 
         jumpStrength = screenHeight / 55 / 1.20F;   
         score = 0;
-        Enemy.bgscrollspeed = screenWidth / 300;
+        Enemy.bgscrollspeed = screenWidth / 300 * 2;
         gromp.x = screenWidth;
         wolf.x = screenWidth;
         raptor.x = screenWidth;
@@ -883,12 +902,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.setFont(roboto30BOLD);
         g.drawString(String.format("Highscore: " + highscore), screenWidth / 2 - 120, 550);
         if (goldEarned == 0) {
-            goldEarned = (int) score / 100 + Enemy.grompsKilled * 50 + Enemy.wolvesKilled * 25 + Enemy.raptorsKilled * 10;
+            goldEarned = (int) score / 25 + Enemy.grompsKilled * 20 + Enemy.wolvesKilled * 30 + Enemy.raptorsKilled * 10;
             totalGold += goldEarned;
         }
-        g.drawString(String.format("Score: %-10s%8s", "" + score + "...", "..." + (int) score / 100 + "g"), screenWidth / 2 - 225, 350);
-        g.drawString(String.format("Gromps: %-9s%8s", "" + Enemy.grompsKilled + "...", "..." + (int) Enemy.grompsKilled * 50 + "g"), screenWidth / 2 - 225, 400);
-        g.drawString(String.format("Wolves: %-9s%8s", "" + Enemy.wolvesKilled + "...", "..." + (int) Enemy.wolvesKilled * 25 + "g"), screenWidth / 2 - 225, 450);
+        g.drawString(String.format("Score: %-10s%8s", "" + score + "...", "..." + (int) score / 25 + "g"), screenWidth / 2 - 225, 350);
+        g.drawString(String.format("Gromps: %-9s%8s", "" + Enemy.grompsKilled + "...", "..." + (int) Enemy.grompsKilled * 25 + "g"), screenWidth / 2 - 225, 400);
+        g.drawString(String.format("Wolves: %-9s%8s", "" + Enemy.wolvesKilled + "...", "..." + (int) Enemy.wolvesKilled * 30 + "g"), screenWidth / 2 - 225, 450);
         g.drawString(String.format("Raptors: %-8s%8s", "" + Enemy.raptorsKilled + "...", "..." + (int) Enemy.raptorsKilled * 10 + "g"), screenWidth / 2 - 225, 500);
         g.drawString(String.format("%25s", "Total: " + goldEarned + "g"), screenWidth / 2 - 225, 750);
 

@@ -41,6 +41,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     private BufferedImage grompImg;
     private BufferedImage wolfImg;
     private BufferedImage[] raptorImg = new BufferedImage[3];
+    private BufferedImage krugImg;
     private BufferedImage greyFilter;
     private BufferedImage[] items = new BufferedImage[4];
     private BufferedImage coin;
@@ -57,7 +58,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     int bg1x = 0, bg2x = screenWidth;
     int bg1type = 0, bg2type = 1;
 
-    int teemox = screenWidth / 3, teemoy = screenHeight - 250;
+    int teemox = screenWidth / 3, teemoy = screenHeight - 275;
     int originalTeemoy = teemoy;
     int teemoMaxHealth = 1;
     int frameCounter = 0;
@@ -75,6 +76,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     Enemy gromp;
     Enemy wolf;
     Enemy raptor;
+    Enemy krug;
     long raptorRand = 0;
 
     Dart dart1;
@@ -120,7 +122,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             teemoSprite[4] = ImageIO.read(getClass().getResourceAsStream("/images/teemo/Teemo5.png"));
             teemoSprite[5] = ImageIO.read(getClass().getResourceAsStream("/images/teemo/Teemo6.png"));
             teemoHat = ImageIO.read(getClass().getResourceAsStream("/images/teemo/TeemoHat.png"));
-            background[0] = ImageIO.read(getClass().getResourceAsStream("/images/backgrounds/background.png"));
+            background[0] = ImageIO.read(getClass().getResourceAsStream("/images/backgrounds/Background.png"));
             background[1] = ImageIO.read(getClass().getResourceAsStream("/images/backgrounds/background2.png"));
             background[2] = ImageIO.read(getClass().getResourceAsStream("/images/backgrounds/MenuBackground.png"));
             grompImg = ImageIO.read(getClass().getResourceAsStream("/images/monsters/Gromp.png"));
@@ -128,6 +130,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             raptorImg[0] = ImageIO.read(getClass().getResourceAsStream("/images/monsters/Raptor1.png"));
             raptorImg[1] = ImageIO.read(getClass().getResourceAsStream("/images/monsters/Raptor2.png"));
             raptorImg[2] = ImageIO.read(getClass().getResourceAsStream("/images/monsters/Raptor3.png"));
+            krugImg = ImageIO.read(getClass().getResourceAsStream("/images/monsters/Krug.png"));
             teemoDart = ImageIO.read(getClass().getResourceAsStream("/images/teemo/teemoDart.png"));
             items[0] = ImageIO.read(getClass().getResourceAsStream("/images/items/Warmogs.png"));
             items[1] = ImageIO.read(getClass().getResourceAsStream("/images/items/Boots_of_Swiftness.png"));
@@ -138,8 +141,9 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
             settings = new Enemy (teemoMaxHealth, screenWidth, screenWidth / 300);
             gromp = new Enemy (10, screenWidth, screenHeight - 310, 175, 175, 1, 2000, 40);
-            wolf = new Enemy (5, screenWidth, screenHeight - 275, 150, 150, 2, 6000, 25);
-            raptor = new Enemy(1, screenWidth, screenHeight - 500, 100, 100, 1.75, 4000, 25);
+            wolf = new Enemy (5, screenWidth, screenHeight - 275, 150, 150, 2, 7000, 25);
+            raptor = new Enemy(1, screenWidth, screenHeight - 500, 100, 100, 1.75, 5000, 25);
+            krug = new Enemy(100, screenWidth, screenHeight - 375, 200, 240, 1, 4000, 40);
 
             dart1 = new Dart(teemox, teemoy);
             dart2 = new Dart(teemox, teemoy);
@@ -263,7 +267,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                     if (teemoy - jumpStrength >= screenHeight - 250) {
                         jumpStrength = screenHeight / 55 / 1.20F;
                         for (int i = 1; i < boots.level; i++) {
-                            jumpStrength += screenHeight / 55 / 1.20F / 12;
+                            jumpStrength += screenHeight / 55 / 1.20F / 15;
                         }
                         teemoy = screenHeight - 250;
                         jumping = false;
@@ -551,7 +555,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 previewSave(file[i]);
             } catch (NoSuchElementException err) {
                 try {
-                    FileWriter fw = new FileWriter(fileNames[i]);
+                    FileWriter fw = new FileWriter("savefiles/" + fileNames[i]);
                     fw.write("Highscore: 0\n");
                     fw.write("Gold: 0\n");
                     fw.write("Warmog Level: 0\n");
@@ -718,7 +722,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
         teemoMaxHealth = warmogs.level + 1;
         for (int i = 1; i < boots.level; i++) {
-            jumpStrength += screenHeight / 55 / 1.20F / 12;
+            jumpStrength += screenHeight / 55 / 1.20F / 15;
         }
         Enemy.dartDamage = IE.level + 1;
 
@@ -771,9 +775,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         if (score >= 5000) {
             wolf.behavior(teemox, teemoy, dart1, dart2, dart3);
         }
+        if (score >= 10000) {
+            krug.behavior(teemox, teemoy, dart1, dart2, dart3);
+        }
 
         if (score % 5000 == 0 && score > 5000 && score < 20001) {
-            Enemy.bgscrollspeed *= 1.25 ;
+            Enemy.bgscrollspeed *= 1.20;
         }
 
         dart1.behavior(teemoDart, teemox, teemoy, screenWidth, screenHeight, p);
@@ -783,6 +790,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.drawImage(grompImg, gromp.x, gromp.y, gromp.eWidth, gromp.eHeight, null);
         g.drawImage(wolfImg, wolf.x, wolf.y, wolf.eWidth, wolf.eHeight, null);
         g.drawImage(raptorImg[(int)raptorRand], raptor.x, raptor.y, raptor.eWidth, raptor.eHeight, null);
+        g.drawImage(krugImg, krug.x, krug.y, krug.eWidth, krug.eHeight, null);
 
         if (dartHit == true) {
             sound.playSound(arrowHit);
@@ -809,6 +817,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         gromp.x = screenWidth;
         wolf.x = screenWidth;
         raptor.x = screenWidth;
+        krug.x = screenWidth;
         goldEarned = 0;
         itemFunctionality();
         Enemy.teemoHealth = teemoMaxHealth;
@@ -893,13 +902,13 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     public void keyPressed(KeyEvent e) {
 
         //Teemo jump
-        if (e.getKeyCode() == KeyEvent.VK_SPACE && upPressed == false && e.getKeyCode() != KeyEvent.VK_W && isCrouch == false && jumping == false) {
+        if (e.getKeyCode() == KeyEvent.VK_SPACE && upPressed == false && e.getKeyCode() != KeyEvent.VK_W && isCrouch == false && jumping == false && gameState == "Game") {
             upPressed = true;
             sound.playSound(jumpSound);
         } 
 
         //Teemo Crouch
-        if (e.getKeyCode() == KeyEvent.VK_W && upPressed == false && e.getKeyCode() != KeyEvent.VK_SPACE && isCrouch == false && jumping == false) {
+        if (e.getKeyCode() == KeyEvent.VK_W && upPressed == false && e.getKeyCode() != KeyEvent.VK_SPACE && isCrouch == false && jumping == false && gameState == "Game") {
             isCrouch = true;
             teemoy = screenHeight - 200;
         }

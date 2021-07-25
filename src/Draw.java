@@ -55,6 +55,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     int highscore = 0;
     int goldEarned = 0;
     int totalGold = 0;
+    int checkpointGold = 0;
 
     int bg1x = 0, bg2x = screenWidth;
     int bg1type = 0, bg2type = 1;
@@ -794,7 +795,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         if (score >= 5000) {
             wolf.behavior(teemox, teemoy, dart1, dart2, dart3);
         }
-        if (score >= 10000) {
+        if (score >= 7500) {
             krug.behavior(teemox, teemoy, dart1, dart2, dart3);
         }
 
@@ -814,6 +815,10 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         if (dartHit == true) {
             sound.playSound(arrowHit);
             dartHit = false;
+        }
+
+        if (score % 2500 == 0 && score > 0) {
+            checkpointGold += 100;
         }
 
     }
@@ -849,6 +854,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         dart1.isDartMoving = false;
         dart2.isDartMoving = false;
         dart3.isDartMoving = false;
+        checkpointGold = 0;
 
     }
 
@@ -900,15 +906,16 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         g.drawString("Game Over", screenWidth / 2 - 190, 275);
 
         g.setFont(roboto30BOLD);
-        g.drawString(String.format("Highscore: " + highscore), screenWidth / 2 - 120, 550);
+        g.drawString(String.format("Highscore: " + highscore), screenWidth / 2 - 120, 650);
         if (goldEarned == 0) {
-            goldEarned = (int) score / 25 + Enemy.grompsKilled * 20 + Enemy.wolvesKilled * 30 + Enemy.raptorsKilled * 10;
+            goldEarned = (int) score / 15 + Enemy.grompsKilled * 20 + Enemy.wolvesKilled * 30 + Enemy.raptorsKilled * 10 + checkpointGold;
             totalGold += goldEarned;
         }
-        g.drawString(String.format("Score: %-10s%8s", "" + score + "...", "..." + (int) score / 25 + "g"), screenWidth / 2 - 225, 350);
+        g.drawString(String.format("Score: %-10s%8s", "" + score + "...", "..." + (int) score / 15 + "g"), screenWidth / 2 - 225, 350);
         g.drawString(String.format("Gromps: %-9s%8s", "" + Enemy.grompsKilled + "...", "..." + (int) Enemy.grompsKilled * 25 + "g"), screenWidth / 2 - 225, 400);
         g.drawString(String.format("Wolves: %-9s%8s", "" + Enemy.wolvesKilled + "...", "..." + (int) Enemy.wolvesKilled * 30 + "g"), screenWidth / 2 - 225, 450);
         g.drawString(String.format("Raptors: %-8s%8s", "" + Enemy.raptorsKilled + "...", "..." + (int) Enemy.raptorsKilled * 10 + "g"), screenWidth / 2 - 225, 500);
+        g.drawString(String.format("Checkpoints: %-4s%8s", "" + "", "..." + checkpointGold + "g"), screenWidth / 2 - 225, 550);
         g.drawString(String.format("%25s", "Total: " + goldEarned + "g"), screenWidth / 2 - 225, 750);
 
     }

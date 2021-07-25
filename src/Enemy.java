@@ -74,7 +74,7 @@ public class Enemy {
             int rightSide = x + eWidth - hitboxCorrection;
             if (dart.x < leftSide && dart.x + dartWidth > leftSide || dart.x < rightSide && dart.x + dartWidth > rightSide || dart.x > leftSide && dart.x + dartWidth < rightSide) {
                 int dartHeight = 12;
-                int topSide = y + hitboxCorrection;
+                int topSide = y + hitboxCorrection - eHeight / 2;
                 int botSide = y + eHeight - hitboxCorrection;
 
                 if (dart.y + dartHeight >= topSide && dart.y <= topSide || dart.y <= botSide && dart.y + dartHeight >= botSide || dart.y >= topSide && dart.y + dartHeight <= botSide) {

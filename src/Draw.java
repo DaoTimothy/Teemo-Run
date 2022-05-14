@@ -38,13 +38,14 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     private BufferedImage[] teemoSprite = new BufferedImage[6];
     private BufferedImage teemoHat;
     private BufferedImage teemoDart;
-    private BufferedImage[] background = new BufferedImage[3];
+    private BufferedImage[] background = new BufferedImage[4];
+    private BufferedImage baronImg;
     private BufferedImage grompImg;
     private BufferedImage wolfImg;
     private BufferedImage[] raptorImg = new BufferedImage[3];
     private BufferedImage krugImg;
     private BufferedImage greyFilter;
-    private BufferedImage[] items = new BufferedImage[4];
+    private BufferedImage[] items = new BufferedImage[5];
     private BufferedImage coin;
     private BufferedImage title;
 
@@ -60,7 +61,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     int bg1x = 0, bg2x = screenWidth;
     int bg1type = 0, bg2type = 1;
 
-    int teemox = screenWidth / 3, teemoy = screenHeight - 275;
+    int teemox = screenWidth / 5, teemoy = screenHeight - 275;
     int originalTeemoy = teemoy;
     int teemoMaxHealth = 1;
     int frameCounter = 0;
@@ -75,6 +76,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     static boolean dartHit = false;
 
     Enemy settings;
+    Enemy baron;
     Enemy gromp;
     Enemy wolf;
     Enemy raptor;
@@ -89,6 +91,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
     Item boots;
     Item noonquiver;
     Item IE;
+    Item TP;
 
     boolean saveInitalized = false;
     File[] file = new File[3];
@@ -127,6 +130,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             background[0] = ImageIO.read(getClass().getResourceAsStream("/images/backgrounds/Background.png"));
             background[1] = ImageIO.read(getClass().getResourceAsStream("/images/backgrounds/background2.png"));
             background[2] = ImageIO.read(getClass().getResourceAsStream("/images/backgrounds/MenuBackground.png"));
+            background[3] = ImageIO.read(getClass().getResourceAsStream("/images/backgrounds/bossbackground.png"));
+            baronImg = ImageIO.read(getClass().getResourceAsStream("/images/monsters/Baron.png"));
             grompImg = ImageIO.read(getClass().getResourceAsStream("/images/monsters/Gromp.png"));
             wolfImg = ImageIO.read(getClass().getResourceAsStream("/images/monsters/Murk-Wolf.png"));
             raptorImg[0] = ImageIO.read(getClass().getResourceAsStream("/images/monsters/Raptor1.png"));
@@ -138,10 +143,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             items[1] = ImageIO.read(getClass().getResourceAsStream("/images/items/Boots_of_Swiftness.png"));
             items[2] = ImageIO.read(getClass().getResourceAsStream("/images/items/Noonquiver.png"));
             items[3] = ImageIO.read(getClass().getResourceAsStream("/images/items/IE.png"));
+            items[4] = ImageIO.read(getClass().getResourceAsStream("/images/items/teleport.png"));
             coin = ImageIO.read(getClass().getResourceAsStream("/images/others/Poro Coin.png"));
             title = ImageIO.read(getClass().getResourceAsStream("/images/others/Title.png"));
 
             settings = new Enemy (teemoMaxHealth, screenWidth, screenWidth / 300);
+            baron = new Enemy(100, screenWidth * 2/3, 0, 600, screenHeight, 0, 0, 0);
             gromp = new Enemy (10, screenWidth, screenHeight - 310, 175, 175, 1, 2000, 40);
             wolf = new Enemy (5, screenWidth, screenHeight - 275, 150, 150, 2, 7000, 25);
             raptor = new Enemy(1, screenWidth, screenHeight - 500, 100, 100, 1.75, 5000, 25);
@@ -155,6 +162,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
             boots = new Item (items[1], "Boots", "Increases Teemo's Jump Height", 7, 100, 200);
             noonquiver = new Item (items[2], "Noonquiver", "Increases Number of Darts", 2, 1000, 2000);
             IE = new Item (items[3], "Infinity Edge", "Increases Dart Damage", 4, 300, 500);
+            TP = new Item(items[4], "Teleport", "Teleport to the Boss", 1, 1000, 0);
 
             greyFilter = ImageIO.read(getClass().getResourceAsStream("/images/others/grey-filter.png"));
 
@@ -221,7 +229,12 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 }
                 drawGame(g);
                 break;
-
+            case "Boss":
+                TP.level--;
+                menuMusic.stop();
+                menuMusicPlaying = false;
+                drawBoss(g);
+                break;
             case "GameOver":
                 gameMusic.stop();
                 gameMusicPlaying = false;
@@ -266,7 +279,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
                 } else if (upPressed) {
                     jumping = true;
                 }
-
+                
                 if (jumping) {
                     teemoy -= jumpStrength;
                     jumpStrength -= weight;
@@ -286,6 +299,72 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         repaint();
     }
 
+    /*
+        ****
+        BOSS
+        ****
+    */
+
+    public void drawBoss(Graphics g) {
+        g.drawImage(background[3], 0, 0, screenWidth, screenHeight, null);
+
+        g.drawImage(baronImg, baron.x, baron.y, baron.eWidth, baron.eHeight, null);
+
+        //Teemo
+        if (isCrouch) {
+            teemoy = screenHeight - 200;
+            g.drawImage(teemoHat, teemox, teemoy, 100, 50, null);
+        } else {
+            g.drawImage(teemoSprite[(int)frameCounter/5], teemox, teemoy, 100, 100, null);
+            if (jumping || Enemy.teemoHealth <= 0) {
+            } else {
+                frameCounter++;
+            }
+            if (frameCounter >= 30) {
+                frameCounter = 0;
+            }
+        } 
+
+        //Dart
+        if (dart1.isDartMoving == true) {
+            g.drawImage(dart1.op.filter(teemoDart, null), (int)dart1.x, (int)dart1.y, null);
+        } else {
+            g.drawImage(teemoDart, (int)dart1.x, (int)dart1.y, null);
+        }
+        
+        if (noonquiver.level >= 1) {
+            if (dart2.isDartMoving == true) {
+                g.drawImage(dart2.op.filter(teemoDart, null), (int)dart2.x, (int)dart2.y, null);
+            } else {
+                g.drawImage(teemoDart, (int)dart2.x, (int)dart2.y, null);
+            }
+        }
+    
+        if (noonquiver.level >= 2) {
+            if (dart3.isDartMoving == true) {
+                g.drawImage(dart3.op.filter(teemoDart, null), (int)dart3.x, (int)dart3.y, null);
+            } else {
+                g.drawImage(teemoDart, (int)dart3.x, (int)dart3.y, null);
+            }
+        }
+        
+        //Crosshair
+        g.drawImage(crosshair, (int)p.getX()-25, (int)p.getY()-25, 50, 50, null);
+
+        if (Enemy.teemoHealth > 0) {
+            score++;
+        }
+
+        //Health
+        drawHealthBar(g);
+
+        if (Enemy.teemoHealth <= 0) {
+            if (gameState == "Game") {
+                sound.playSound(teemoDie);
+            }
+            gameState = "GameOver";
+        }
+    }
     /* 
         ****
         MENU
@@ -365,6 +444,7 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
         drawShopItem(g, boots, screenWidth / 2 - 700, screenHeight / 2);
         drawShopItem(g, noonquiver, screenWidth / 2 + 100, screenHeight / 4);
         drawShopItem(g, IE, screenWidth / 2 + 100, screenHeight / 2);
+        drawShopItem(g, TP, screenWidth / 2 - 300, screenHeight - screenHeight / 5);
     
         drawItemLevels(g, screenWidth / 2 - 700 + screenHeight / 5, screenHeight / 4 + 100, warmogs.maxLevel, warmogs.level);
         drawItemLevels(g, screenWidth / 2 - 700 + screenHeight / 5, screenHeight / 2 + 100, boots.maxLevel, boots.level);
@@ -376,6 +456,8 @@ public class Draw extends JPanel implements ActionListener, KeyListener, MouseLi
 
         if (gameState.equals("Game")) {
             resetGame();
+        } else if (TP.level >= 1) {
+            gameState = "Boss";
         }
 
         g.setFont(roboto30BOLD);

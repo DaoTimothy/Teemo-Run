@@ -1,5 +1,5 @@
 Highscore: 0
-Gold: 0
+Gold: 9999
 Warmog Level: 0
 Boots Level: 0
 Noonquiver Level: 0
